@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Network Playground | Deep Learning Visualized</title>
+    <meta name="description" content="Interactive neural network playground - build, train, and visualize deep learning in real-time">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <!-- Particle Background Canvas -->
+    <canvas id="particles-canvas" aria-hidden="true"></canvas>
+
+    <!-- Ambient Glow Effects -->
+    <div class="ambient-glow ambient-glow--1" aria-hidden="true"></div>
+    <div class="ambient-glow ambient-glow--2" aria-hidden="true"></div>
+    <div class="ambient-glow ambient-glow--3" aria-hidden="true"></div>
+
+    <div class="app">
+        <!-- Header with Logo -->
+        <header class="header glass-panel">
+            <div class="header__brand">
+                <div class="header__logo">
+                    <svg viewBox="0 0 40 40" class="logo-icon">
+                        <defs>
+                            <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#22c55e"/>
+                                <stop offset="50%" style="stop-color:#f59e0b"/>
+                                <stop offset="100%" style="stop-color:#64748b"/>
+                            </linearGradient>
+                        </defs>
+                        <circle cx="20" cy="12" r="4" fill="url(#logoGrad)"/>
+                        <circle cx="10" cy="28" r="4" fill="url(#logoGrad)"/>
+                        <circle cx="30" cy="28" r="4" fill="url(#logoGrad)"/>
+                        <line x1="20" y1="16" x2="12" y2="24" stroke="url(#logoGrad)" stroke-width="2"/>
+                        <line x1="20" y1="16" x2="28" y2="24" stroke="url(#logoGrad)" stroke-width="2"/>
+                        <line x1="14" y1="28" x2="26" y2="28" stroke="url(#logoGrad)" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div class="header__title">
+                    <h1>Neural Playground</h1>
+                </div>
+            </div>
+
+            <nav class="header__nav">
+                <button class="btn btn--ghost" id="btn-tutorial">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 16v-4M12 8h.01"/>
+                    </svg>
+                    Tutorial
+                </button>
+                <button class="btn btn--ghost" id="btn-examples">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                    Examples
+                </button>
+            </nav>
+        </header>
+
+        <!-- Top Controls Bar -->
+        <div class="controls-bar glass-panel">
+            <!-- Training Controls -->
+            <div class="control-section">
+                <div class="training-controls">
+                    <button class="btn btn--primary btn--large" id="btn-train">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        Train
+                    </button>
+                    <button class="btn btn--secondary" id="btn-step" title="Single Step">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 4 15 12 5 20 5 4" fill="currentColor"/>
+                            <line x1="19" y1="5" x2="19" y2="19"/>
+                        </svg>
+                    </button>
+                    <button class="btn btn--ghost" id="btn-reset" title="Reset">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                            <path d="M3 3v5h5"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="control-divider"></div>
+
+            <!-- Metrics -->
+            <div class="control-section control-section--metrics">
+                <div class="inline-metric">
+                    <span class="inline-metric__label">Epoch</span>
+                    <span class="inline-metric__value" id="metric-epoch">0</span>
+                </div>
+                <div class="inline-metric">
+                    <span class="inline-metric__label">Loss</span>
+                    <span class="inline-metric__value inline-metric__value--loss" id="metric-loss">0.000</span>
+                </div>
+                <div class="inline-metric">
+                    <span class="inline-metric__label">Accuracy</span>
+                    <span class="inline-metric__value inline-metric__value--accuracy" id="metric-accuracy">50.0%</span>
+                </div>
+            </div>
+
+            <div class="control-divider"></div>
+
+            <!-- Dataset Selection -->
+            <div class="control-section">
+                <span class="control-section__label">Data</span>
+                <div class="dataset-grid" id="dataset-grid">
+                    <button class="dataset-btn dataset-btn--active" data-dataset="circle" title="Circle">
+                        <svg viewBox="0 0 40 40">
+                            <circle cx="20" cy="20" r="12" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 2"/>
+                            <circle cx="20" cy="20" r="3" fill="#f59e0b"/>
+                            <circle cx="12" cy="12" r="2" fill="#22c55e"/>
+                            <circle cx="28" cy="28" r="2" fill="#22c55e"/>
+                        </svg>
+                    </button>
+                    <button class="dataset-btn" data-dataset="xor" title="XOR">
+                        <svg viewBox="0 0 40 40">
+                            <circle cx="12" cy="12" r="3" fill="#f59e0b"/>
+                            <circle cx="28" cy="28" r="3" fill="#f59e0b"/>
+                            <circle cx="28" cy="12" r="3" fill="#22c55e"/>
+                            <circle cx="12" cy="28" r="3" fill="#22c55e"/>
+                        </svg>
+                    </button>
+                    <button class="dataset-btn" data-dataset="spiral" title="Spiral">
+                        <svg viewBox="0 0 40 40">
+                            <path d="M20 20 Q25 15 22 10 Q18 5 12 8 Q6 12 8 20 Q10 28 20 28" fill="none" stroke="#f59e0b" stroke-width="2"/>
+                            <path d="M20 20 Q15 25 18 30 Q22 35 28 32 Q34 28 32 20" fill="none" stroke="#22c55e" stroke-width="2"/>
+                        </svg>
+                    </button>
+                    <button class="dataset-btn" data-dataset="clusters" title="Clusters">
+                        <svg viewBox="0 0 40 40">
+                            <circle cx="12" cy="14" r="2" fill="#f59e0b"/>
+                            <circle cx="16" cy="10" r="2" fill="#f59e0b"/>
+                            <circle cx="10" cy="18" r="2" fill="#f59e0b"/>
+                            <circle cx="28" cy="26" r="2" fill="#22c55e"/>
+                            <circle cx="24" cy="30" r="2" fill="#22c55e"/>
+                            <circle cx="30" cy="22" r="2" fill="#22c55e"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="control-divider"></div>
+
+            <!-- Learning Rate -->
+            <div class="control-section">
+                <span class="control-section__label">Learning Rate</span>
+                <input type="range" class="slider slider--compact" id="learning-rate" min="-3" max="0" step="0.1" value="-1.5">
+                <span class="control-section__value" id="lr-value">0.03</span>
+            </div>
+
+            <div class="control-divider"></div>
+
+            <!-- Activation -->
+            <div class="control-section">
+                <span class="control-section__label">Activation</span>
+                <select class="select select--compact" id="activation">
+                    <option value="relu">ReLU</option>
+                    <option value="sigmoid">Sigmoid</option>
+                    <option value="tanh" selected>Tanh</option>
+                    <option value="leakyRelu">Leaky ReLU</option>
+                </select>
+            </div>
+
+            <div class="control-divider"></div>
+
+            <!-- Regularization -->
+            <div class="control-section">
+                <span class="control-section__label">Regularization</span>
+                <input type="range" class="slider slider--compact" id="regularization" min="0" max="1" step="0.01" value="0">
+                <span class="control-section__value" id="reg-value">0.00</span>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Left Sidebar - Network Architecture -->
+            <aside class="sidebar sidebar--left glass-panel">
+                <div class="sidebar__header">
+                    <h2 class="sidebar__title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M12 1v6m0 6v10"/>
+                        </svg>
+                        Architecture
+                    </h2>
+                </div>
+
+                <div class="sidebar__content">
+                    <!-- Input Features Selection -->
+                    <div class="layer-config layer-config--input">
+                        <div class="layer-config__header">
+                            <span class="layer-config__badge layer-config__badge--input">Inputs</span>
+                            <span class="layer-config__neurons" id="input-count">2 features</span>
+                        </div>
+                        <div class="input-features" id="input-features">
+                            <label class="feature-toggle feature-toggle--active" data-feature="x1" title="x₁">
+                                <span class="feature-toggle__label">x₁</span>
+                            </label>
+                            <label class="feature-toggle feature-toggle--active" data-feature="x2" title="x₂">
+                                <span class="feature-toggle__label">x₂</span>
+                            </label>
+                            <label class="feature-toggle" data-feature="x1sq" title="x₁²">
+                                <span class="feature-toggle__label">x₁²</span>
+                            </label>
+                            <label class="feature-toggle" data-feature="x2sq" title="x₂²">
+                                <span class="feature-toggle__label">x₂²</span>
+                            </label>
+                            <label class="feature-toggle" data-feature="x1x2" title="x₁x₂">
+                                <span class="feature-toggle__label">x₁x₂</span>
+                            </label>
+                            <label class="feature-toggle" data-feature="sinx1" title="sin(x₁)">
+                                <span class="feature-toggle__label">sin</span>
+                            </label>
+                            <label class="feature-toggle" data-feature="sinx2" title="sin(x₂)">
+                                <span class="feature-toggle__label">cos</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Hidden Layers Container -->
+                    <div class="hidden-layers" id="hidden-layers"></div>
+
+                    <!-- Add Layer Button -->
+                    <button class="btn btn--dashed btn--full" id="btn-add-layer">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Add Layer
+                    </button>
+
+                    <!-- Output Layer -->
+                    <div class="layer-config layer-config--output">
+                        <div class="layer-config__header">
+                            <span class="layer-config__badge layer-config__badge--output">Output</span>
+                            <span class="layer-config__neurons">1 neuron</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Network Summary -->
+                <div class="network-summary glass-panel--inner">
+                    <div class="network-summary__item">
+                        <span class="network-summary__label">Params</span>
+                        <span class="network-summary__value" id="total-params">0</span>
+                    </div>
+                    <div class="network-summary__item">
+                        <span class="network-summary__label">Layers</span>
+                        <span class="network-summary__value" id="total-layers">2</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Center - Visualization Area -->
+            <section class="visualization">
+                <!-- Network Canvas -->
+                <div class="viz-panel viz-panel--network glass-panel">
+                    <div class="viz-panel__header">
+                        <h3>Neural Network</h3>
+                    </div>
+                    <div class="viz-panel__body">
+                        <canvas id="network-canvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Decision Boundary -->
+                <div class="viz-panel viz-panel--boundary glass-panel">
+                    <div class="viz-panel__header">
+                        <h3>Output</h3>
+                        <div class="viz-panel__legend">
+                            <span class="legend-item legend-item--class-a">Class A</span>
+                            <span class="legend-item legend-item--class-b">Class B</span>
+                        </div>
+                    </div>
+                    <div class="viz-panel__body">
+                        <canvas id="boundary-canvas"></canvas>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Bottom Panel - Loss Chart -->
+        <footer class="metrics-bar glass-panel">
+            <div class="metric metric--chart metric--chart-full">
+                <span class="metric__label">Loss History</span>
+                <canvas id="loss-chart"></canvas>
+            </div>
+            <div class="metric">
+                <span class="metric__label">Speed</span>
+                <span class="metric__value" id="metric-speed">0 iter/s</span>
+            </div>
+        </footer>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
