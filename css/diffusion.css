@@ -1,0 +1,294 @@
+/* ==========================================
+   DIFFUSION TAB STYLES
+   ========================================== */
+
+/* Accent color for diffusion tab */
+:root {
+    --diffusion-accent: #ec4899;
+    --diffusion-accent-light: #f472b6;
+    --diffusion-accent-dark: #db2777;
+}
+
+/* Controls Bar */
+.diffusion-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Main Layout */
+.diffusion-main {
+    display: grid;
+    grid-template-columns: 260px 1fr 240px;
+    gap: 1rem;
+    padding: 1rem;
+    height: calc(100vh - 180px);
+    overflow: hidden;
+}
+
+/* Left Sidebar */
+.diffusion-sidebar {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.diffusion-model-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.diffusion-model-info .model-info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+}
+
+.diffusion-model-info .model-info-label {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.diffusion-model-info .model-info-value {
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+}
+
+/* Mini Architecture Diagram */
+.diffusion-arch-mini {
+    margin: 1rem 0;
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+.diffusion-arch-mini canvas {
+    width: 100%;
+    height: auto;
+}
+
+/* Training Toggle */
+.diffusion-train-toggle {
+    margin: 1rem 0;
+    padding: 0.75rem;
+    background: rgba(236, 72, 153, 0.1);
+    border: 1px solid rgba(236, 72, 153, 0.3);
+    border-radius: 8px;
+}
+
+.diffusion-train-toggle .toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.diffusion-train-toggle input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--diffusion-accent);
+}
+
+/* Training Controls */
+.diffusion-train-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin-top: 0.5rem;
+}
+
+.diffusion-train-controls .train-control {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.diffusion-train-controls .train-control label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.diffusion-train-controls .train-control input {
+    padding: 0.4rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+}
+
+.diffusion-train-controls .train-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.diffusion-train-controls .train-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.diffusion-train-controls .metric-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+}
+
+/* Center - Grid Panel */
+.diffusion-visualization {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.diffusion-grid-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.diffusion-grid-panel .viz-panel__content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    min-height: 0;
+}
+
+.diffusion-grid-panel canvas {
+    max-width: 100%;
+    max-height: 100%;
+    image-rendering: pixelated;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* Progress Bar */
+.diffusion-progress {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+}
+
+.diffusion-progress .progress-track {
+    flex: 1;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.diffusion-progress .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--diffusion-accent), var(--diffusion-accent-light));
+    border-radius: 3px;
+    transition: width 0.1s ease;
+}
+
+#diffusion-progress-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    min-width: 80px;
+    text-align: right;
+}
+
+/* Right Sidebar - Timeline */
+.diffusion-preview {
+    display: flex;
+    flex-direction: column;
+}
+
+.diffusion-preview .sidebar__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.diffusion-hint {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 1rem;
+}
+
+.diffusion-timeline {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+
+.diffusion-timeline canvas {
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.diffusion-scrubber {
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.diffusion-scrubber input[type="range"] {
+    width: 100%;
+    accent-color: var(--diffusion-accent);
+}
+
+#diffusion-time-label {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--diffusion-accent);
+}
+
+/* Backend Status */
+.diffusion-controls .backend-status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-warning);
+}
+
+.diffusion-controls .backend-status.active {
+    background: var(--color-success);
+    box-shadow: 0 0 8px var(--color-success);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .diffusion-main {
+        grid-template-columns: 220px 1fr 200px;
+    }
+}
+
+@media (max-width: 900px) {
+    .diffusion-main {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr auto;
+    }
+
+    .diffusion-sidebar,
+    .diffusion-preview {
+        max-height: 200px;
+    }
+}
