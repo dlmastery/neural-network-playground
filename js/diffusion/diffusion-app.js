@@ -258,13 +258,17 @@ export class DiffusionApp {
     /**
      * Select a cell to show in timeline
      */
-    selectCell(index) {
+    async selectCell(index) {
         this.selectedCell = index;
         this.elements.previewHint.style.display = 'none';
         this.elements.scrubber.style.display = 'flex';
 
-        // TODO: Show denoising timeline for this cell
-        console.log(`[Diffusion] Selected cell ${index} for timeline view`);
+        // Draw timeline for selected cell
+        if (this.generationHistory && this.generationHistory[index]) {
+            const { diffusionViz } = await import('./diffusion-viz.js');
+            diffusionViz.drawTimeline(this.generationHistory[index]);
+            diffusionViz.highlightCell(index);
+        }
     }
 
     /**

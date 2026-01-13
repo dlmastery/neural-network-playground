@@ -78,8 +78,9 @@ export class DiffusionViz {
     /**
      * Draw generated images to grid
      * @param {Float32Array[]} images - Array of 28x28 images
+     * @param {number} selectedIndex - Index of selected cell (-1 for none)
      */
-    drawGrid(images) {
+    drawGrid(images, selectedIndex = -1) {
         if (!this.gridCtx) return;
 
         const ctx = this.gridCtx;
@@ -99,6 +100,13 @@ export class DiffusionViz {
             const y = row * cellSize + this.cellPadding / 2;
 
             this.drawImage(ctx, img, x, y, imgSize);
+
+            // Highlight if selected
+            if (idx === selectedIndex) {
+                ctx.strokeStyle = '#ec4899';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(x - 2, y - 2, imgSize + 4, imgSize + 4);
+            }
         });
     }
 
