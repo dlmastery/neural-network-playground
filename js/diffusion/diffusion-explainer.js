@@ -46,6 +46,7 @@ export class DiffusionExplainer {
 
         // Initialize tab-specific controls
         this.initForwardProcess();
+        this.initReverseProcess();
     }
 
     /**
@@ -61,6 +62,17 @@ export class DiffusionExplainer {
                 valueDisplay.textContent = `t=${value}`;
             }
             this.drawForwardProcess(value);
+        });
+    }
+
+    /**
+     * Initialize reverse process tab controls
+     */
+    initReverseProcess() {
+        const playBtn = document.getElementById('reverse-play-btn');
+
+        playBtn?.addEventListener('click', () => {
+            this.animateReverseProcess();
         });
     }
 
@@ -118,6 +130,9 @@ export class DiffusionExplainer {
                 break;
             case 'd-forward':
                 this.drawForwardProcess(0);
+                break;
+            case 'd-reverse':
+                this.drawReverseProcess(0);
                 break;
             // Other tabs will be added in subsequent tasks
         }
@@ -218,6 +233,107 @@ export class DiffusionExplainer {
         ctx.textAlign = 'center';
         ctx.fillText('0', graphX, graphY + graphHeight + 12);
         ctx.fillText('T', graphX + graphWidth, graphY + graphHeight + 12);
+    }
+
+    /**
+     * Draw the reverse process visualization
+     * @param {number} currentStep - Current denoising step (0 = noise, 100 = clean)
+     */
+    drawReverseProcess(currentStep = 0) {
+        const canvas = document.getElementById('reverse-process-canvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+
+        // Clear
+        ctx.fillStyle = 'rgba(15, 23, 42, 1)';
+        ctx.fillRect(0, 0, width, height);
+
+        // Main digit in center
+        const mainSize = 120;
+        const mainX = (width - mainSize) / 2;
+        const mainY = 20;
+        const noiseLevel = 1 - (currentStep / 100);
+
+        // Draw large noisy digit
+        this.drawNoisyDigit(ctx, mainX, mainY, mainSize, noiseLevel, '5');
+
+        // Draw progress text
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = 'bold 14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`Denoising Step: ${currentStep}/100`, width / 2, mainY + mainSize + 25);
+
+        // Draw noise level indicator
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '12px sans-serif';
+        ctx.fillText(`Noise Level: ${Math.round(noiseLevel * 100)}%`, width / 2, mainY + mainSize + 45);
+
+        // Draw progress bar
+        const barWidth = 200;
+        const barHeight = 8;
+        const barX = (width - barWidth) / 2;
+        const barY = height - 30;
+
+        // Background
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.fillRect(barX, barY, barWidth, barHeight);
+
+        // Progress
+        ctx.fillStyle = '#ec4899';
+        ctx.fillRect(barX, barY, barWidth * (currentStep / 100), barHeight);
+
+        // Border
+        ctx.strokeStyle = 'rgba(236, 72, 153, 0.5)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(barX, barY, barWidth, barHeight);
+
+        // Labels
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '10px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('t=T (noise)', barX, barY - 5);
+        ctx.textAlign = 'right';
+        ctx.fillText('t=0 (clean)', barX + barWidth, barY - 5);
+    }
+
+    /**
+     * Animate the reverse process
+     */
+    animateReverseProcess() {
+        let step = 0;
+        const totalSteps = 100;
+        const stepDuration = 30; // ms per step
+
+        // Update button text
+        const playBtn = document.getElementById('reverse-play-btn');
+        if (playBtn) {
+            playBtn.textContent = '⏸ Running...';
+            playBtn.disabled = true;
+        }
+
+        const animate = () => {
+            this.drawReverseProcess(step);
+            step++;
+
+            if (step <= totalSteps) {
+                this.animationFrame = requestAnimationFrame(() => {
+                    setTimeout(animate, stepDuration);
+                });
+            } else {
+                // Animation complete
+                if (playBtn) {
+                    playBtn.textContent = '▶ Play Again';
+                    playBtn.disabled = false;
+                }
+            }
+        };
+
+        // Start from noise
+        this.stopAnimation();
+        animate();
     }
 
     /**
