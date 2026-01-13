@@ -26,6 +26,8 @@ class TabController {
         this.gnnInitialized = false;
         this.diffusionApp = null;
         this.diffusionInitialized = false;
+        this.designSpacesApp = null;
+        this.designSpacesInitialized = false;
         this.init();
     }
 
@@ -72,6 +74,11 @@ class TabController {
         // Lazy load Diffusion app when first accessed
         if (tab === 'diffusion' && !this.diffusionInitialized) {
             await this.initDiffusionApp();
+        }
+
+        // Lazy load Design Spaces app when first accessed
+        if (tab === 'design-spaces' && !this.designSpacesInitialized) {
+            await this.initDesignSpacesApp();
         }
 
         // Notify active app of tab switch
@@ -160,6 +167,24 @@ class TabController {
             console.log('Diffusion App initialized successfully');
         } catch (error) {
             console.error('Failed to initialize Diffusion App:', error);
+        }
+    }
+
+    async initDesignSpacesApp() {
+        try {
+            console.log('Initializing Design Spaces App...');
+
+            // Dynamically import Design Spaces app
+            const { designSpacesApp } = await import('./design-spaces/design-spaces-app.js');
+
+            await designSpacesApp.init();
+
+            this.designSpacesApp = designSpacesApp;
+            this.designSpacesInitialized = true;
+
+            console.log('Design Spaces App initialized successfully');
+        } catch (error) {
+            console.error('Failed to initialize Design Spaces App:', error);
         }
     }
 }
