@@ -1227,6 +1227,167 @@
             </div>
         </div><!-- End Diffusion Tab Panel -->
 
+        <!-- Diffusion Explainer Modal -->
+        <div class="explainer-modal" id="diffusion-explainer-modal">
+            <div class="explainer-modal__content glass-panel">
+                <!-- Header -->
+                <div class="explainer-modal__header">
+                    <h2 class="explainer-modal__title">Diffusion Model Explainer</h2>
+                    <p class="explainer-modal__subtitle">Learn how diffusion models generate images step by step</p>
+                    <button class="explainer-modal__close" id="diffusion-explainer-close-btn">&times;</button>
+                </div>
+
+                <!-- Tab Navigation -->
+                <div class="explainer-tabs">
+                    <button class="explainer-tab-btn explainer-tab-btn--active" data-tab="d-overview">What is Diffusion?</button>
+                    <button class="explainer-tab-btn" data-tab="d-forward">Forward Process</button>
+                    <button class="explainer-tab-btn" data-tab="d-reverse">Reverse Process</button>
+                    <button class="explainer-tab-btn" data-tab="d-unet">U-Net</button>
+                    <button class="explainer-tab-btn" data-tab="d-schedules">Noise Schedules</button>
+                    <button class="explainer-tab-btn" data-tab="d-sampling">Sampling</button>
+                    <button class="explainer-tab-btn" data-tab="d-guidance">Guidance</button>
+                </div>
+
+                <!-- Tab Panels -->
+                <div class="explainer-body">
+                    <!-- Tab 1: What is Diffusion -->
+                    <div class="explainer-tab-panel explainer-tab-panel--active" id="d-overview-panel">
+                        <div class="explainer-grid explainer-grid--overview">
+                            <div class="explainer-card explainer-card--full">
+                                <h3>What is a Diffusion Model?</h3>
+                                <p>Diffusion models learn to reverse the process of adding noise to data. Imagine watching ink spread in water, then playing it backwards - the model learns to "gather" the ink back into its original shape.</p>
+                                <div class="diffusion-diagram" id="diffusion-overview-diagram">
+                                    <canvas id="diffusion-overview-canvas" width="500" height="200"></canvas>
+                                </div>
+                            </div>
+                            <div class="explainer-card">
+                                <h3>Key Insight</h3>
+                                <p>Diffusion models learn to <strong>reverse the natural process of adding noise</strong>. Given a noisy image, they predict what noise to subtract.</p>
+                            </div>
+                            <div class="explainer-card">
+                                <h3>Applications</h3>
+                                <ul class="explainer-list">
+                                    <li><strong>DALL-E 2</strong> - Text to image</li>
+                                    <li><strong>Stable Diffusion</strong> - Open source</li>
+                                    <li><strong>Midjourney</strong> - Artistic images</li>
+                                    <li><strong>Sora</strong> - Video generation</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Forward Process -->
+                    <div class="explainer-tab-panel" id="d-forward-panel">
+                        <div class="explainer-card explainer-card--full">
+                            <h3>The Forward Process (Noising)</h3>
+                            <p>The forward process gradually adds Gaussian noise to an image until it becomes pure noise. This is a fixed process - we don't learn it.</p>
+                            <div class="forward-process-demo">
+                                <canvas id="forward-process-canvas" width="500" height="120"></canvas>
+                                <div class="forward-slider-container">
+                                    <label>Noise Level (t)</label>
+                                    <input type="range" id="forward-noise-slider" min="0" max="100" value="0">
+                                    <span id="forward-noise-value">t=0</span>
+                                </div>
+                            </div>
+                            <div class="math-formula">
+                                <code>q(x_t | x_{t-1}) = N(√(1-β_t) x_{t-1}, β_t I)</code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: Reverse Process -->
+                    <div class="explainer-tab-panel" id="d-reverse-panel">
+                        <div class="explainer-card explainer-card--full">
+                            <h3>The Reverse Process (Denoising)</h3>
+                            <p>The neural network learns to predict the noise that was added at each step. By subtracting this predicted noise, we gradually recover the original image.</p>
+                            <div class="reverse-process-demo">
+                                <canvas id="reverse-process-canvas" width="500" height="200"></canvas>
+                                <button class="btn btn--primary" id="reverse-play-btn">▶ Play Denoising</button>
+                            </div>
+                            <div class="math-formula">
+                                <code>p_θ(x_{t-1} | x_t) = N(μ_θ(x_t, t), Σ_θ(x_t, t))</code>
+                            </div>
+                            <p class="key-insight"><strong>Key:</strong> The network predicts ε (the noise), not the clean image directly.</p>
+                        </div>
+                    </div>
+
+                    <!-- Tab 4: U-Net Architecture -->
+                    <div class="explainer-tab-panel" id="d-unet-panel">
+                        <div class="explainer-card explainer-card--full">
+                            <h3>U-Net Architecture</h3>
+                            <p>The denoising network is a U-Net: an encoder-decoder with skip connections. It takes a noisy image and timestep as input, outputs the predicted noise.</p>
+                            <div class="unet-diagram">
+                                <canvas id="unet-explainer-canvas" width="500" height="350"></canvas>
+                            </div>
+                            <div class="unet-legend">
+                                <span class="legend-item"><span class="legend-color" style="background:#6366f1"></span>Encoder (downsample)</span>
+                                <span class="legend-item"><span class="legend-color" style="background:#8b5cf6"></span>Decoder (upsample)</span>
+                                <span class="legend-item"><span class="legend-color" style="background:#10b981"></span>Skip connections</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 5: Noise Schedules -->
+                    <div class="explainer-tab-panel" id="d-schedules-panel">
+                        <div class="explainer-card explainer-card--full">
+                            <h3>Noise Schedules</h3>
+                            <p>The noise schedule β_t controls how quickly noise is added. Different schedules affect generation quality.</p>
+                            <div class="schedules-demo">
+                                <canvas id="schedules-canvas" width="500" height="200"></canvas>
+                                <div class="schedule-toggle">
+                                    <button class="btn btn--secondary schedule-btn schedule-btn--active" data-schedule="linear">Linear</button>
+                                    <button class="btn btn--secondary schedule-btn" data-schedule="cosine">Cosine</button>
+                                </div>
+                            </div>
+                            <p><strong>Linear:</strong> Simple ramp from β_start to β_end. <strong>Cosine:</strong> Slower start, preserves more signal longer.</p>
+                        </div>
+                    </div>
+
+                    <!-- Tab 6: Sampling Methods -->
+                    <div class="explainer-tab-panel" id="d-sampling-panel">
+                        <div class="explainer-card explainer-card--full">
+                            <h3>DDPM vs DDIM Sampling</h3>
+                            <p>Different algorithms for the reverse process trade off speed vs quality.</p>
+                            <div class="sampling-race">
+                                <div class="sampling-track">
+                                    <h4>DDPM (50 steps)</h4>
+                                    <canvas id="ddpm-race-canvas" width="200" height="200"></canvas>
+                                    <span class="sampling-time" id="ddpm-time">-</span>
+                                </div>
+                                <div class="sampling-track">
+                                    <h4>DDIM (10 steps)</h4>
+                                    <canvas id="ddim-race-canvas" width="200" height="200"></canvas>
+                                    <span class="sampling-time" id="ddim-time">-</span>
+                                </div>
+                            </div>
+                            <button class="btn btn--primary" id="sampling-race-btn">▶ Race!</button>
+                            <p><strong>DDPM:</strong> Stochastic, higher quality. <strong>DDIM:</strong> Deterministic, faster, same seed = same output.</p>
+                        </div>
+                    </div>
+
+                    <!-- Tab 7: Guidance -->
+                    <div class="explainer-tab-panel" id="d-guidance-panel">
+                        <div class="explainer-card explainer-card--full">
+                            <h3>Classifier-Free Guidance</h3>
+                            <p>Guidance scale controls how strongly the model follows the class label. Higher = more recognizable but less diverse.</p>
+                            <div class="guidance-demo">
+                                <canvas id="guidance-canvas" width="500" height="120"></canvas>
+                                <div class="guidance-slider-container">
+                                    <label>Guidance Scale</label>
+                                    <input type="range" id="guidance-scale-slider" min="1" max="10" step="0.5" value="3">
+                                    <span id="guidance-scale-value">3.0</span>
+                                </div>
+                            </div>
+                            <div class="math-formula">
+                                <code>ε_guided = ε_uncond + s · (ε_cond - ε_uncond)</code>
+                            </div>
+                            <p>Low guidance (1-2): Diverse, fuzzy. High guidance (7-10): Sharp, less variety.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Transformer Explainer Modal -->
         <div class="explainer-modal" id="transformer-explainer-modal">
             <div class="explainer-modal__content glass-panel">
