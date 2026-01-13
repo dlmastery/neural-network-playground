@@ -196,6 +196,11 @@ export class DiffusionApp {
         this.updateStatus('Generating...');
         this.updateProgress(0, 'Starting...');
 
+        // Add loading class to button
+        this.elements.generateBtn?.classList.add('generating');
+        const btnText = this.elements.generateBtn?.querySelector('.btn-text');
+        if (btnText) btnText.textContent = 'Generating...';
+
         try {
             // Import model
             const { diffusionModel } = await import('./diffusion-model.js');
@@ -233,6 +238,9 @@ export class DiffusionApp {
             this.updateStatus('Error');
         }
 
+        // Restore button state
+        this.elements.generateBtn?.classList.remove('generating');
+        if (btnText) btnText.textContent = 'Generate';
         this.isGenerating = false;
     }
 

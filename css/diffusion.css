@@ -274,22 +274,93 @@
     box-shadow: 0 0 8px var(--color-success);
 }
 
-/* Responsive */
-@media (max-width: 1200px) {
+/* ==========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================== */
+
+/* Tablet (< 1200px) */
+@media (max-width: 1199px) {
     .diffusion-main {
         grid-template-columns: 220px 1fr 200px;
     }
+
+    .diffusion-grid-panel canvas {
+        width: 100%;
+        height: auto;
+        max-width: 400px;
+    }
 }
 
-@media (max-width: 900px) {
+/* Small tablet (< 900px) */
+@media (max-width: 899px) {
     .diffusion-main {
         grid-template-columns: 1fr;
-        grid-template-rows: auto 1fr auto;
+        grid-template-rows: auto auto auto;
+        height: auto;
+        max-height: none;
     }
 
     .diffusion-sidebar,
     .diffusion-preview {
-        max-height: 200px;
+        width: 100%;
+        max-height: 300px;
+    }
+
+    .diffusion-visualization {
+        order: -1; /* Grid first on mobile */
+    }
+
+    .diffusion-grid-panel canvas {
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    .diffusion-controls {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .control-divider {
+        display: none;
+    }
+}
+
+/* Mobile (< 600px) */
+@media (max-width: 599px) {
+    .diffusion-main {
+        padding: 0.5rem;
+        gap: 0.5rem;
+    }
+
+    .diffusion-controls {
+        padding: 0.5rem;
+    }
+
+    .control-section {
+        flex: 1 1 auto;
+        min-width: 100px;
+    }
+
+    .diffusion-grid-panel canvas {
+        max-width: 250px;
+    }
+
+    /* Explainer modal responsive */
+    #diffusion-explainer-modal .explainer-modal__content {
+        max-width: 95vw;
+        max-height: 95vh;
+    }
+
+    #diffusion-explainer-modal .explainer-tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #diffusion-explainer-modal .explainer-tab-btn {
+        flex-shrink: 0;
+        font-size: 0.8rem;
+        padding: 0.5rem 0.75rem;
     }
 }
 
@@ -540,4 +611,59 @@
 .diffusion-diagram canvas {
     max-width: 100%;
     height: auto;
+}
+
+/* ==========================================
+   ANIMATIONS
+   ========================================== */
+
+/* Generate button pulse */
+@keyframes diffusion-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.4); }
+    50% { box-shadow: 0 0 0 10px rgba(236, 72, 153, 0); }
+}
+
+.diffusion-controls .btn--primary:not(:disabled) {
+    animation: diffusion-pulse 2s infinite;
+}
+
+.diffusion-controls .btn--primary:disabled {
+    animation: none;
+}
+
+/* Generate button loading state */
+.diffusion-controls .btn--primary.generating {
+    animation: none;
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Grid cell fade-in */
+@keyframes diffusion-fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.diffusion-grid-panel canvas {
+    animation: diffusion-fadeIn 0.3s ease-out;
+}
+
+/* Progress bar animation */
+.diffusion-progress .progress-fill {
+    transition: width 0.1s ease-out;
+}
+
+/* Loading spinner */
+.diffusion-loading {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #ec4899;
+    border-radius: 50%;
+    animation: diffusion-spin 0.8s linear infinite;
+}
+
+@keyframes diffusion-spin {
+    to { transform: rotate(360deg); }
 }
