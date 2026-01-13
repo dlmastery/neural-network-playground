@@ -72,7 +72,7 @@
     --header-height: 56px;
     --controls-height: 56px;
     --sidebar-width: 260px;
-    --metrics-height: 60px;
+    --metrics-height: 50px;
     --gap: 12px;
 }
 
@@ -455,19 +455,21 @@ body {
     grid-area: footer;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 0 20px;
     gap: 24px;
+    min-height: 0;
 }
 
 .metric {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 2px;
+    gap: 8px;
 }
 
 .metric__label {
-    font-size: 10px;
+    font-size: 9px;
     color: var(--color-slate-400);
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -475,7 +477,7 @@ body {
 
 .metric__value {
     font-family: var(--font-mono);
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--color-slate-800);
 }
@@ -484,20 +486,21 @@ body {
 .metric__value--accuracy { color: var(--color-success-400); }
 
 .metric--chart {
-    flex: 1;
-    max-width: 280px;
+    flex: 0 0 auto;
+    max-width: 220px;
     min-width: 120px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 2px;
-    height: 100%;
+    gap: 8px;
 }
 
 .metric--chart canvas {
-    width: 100%;
-    height: 30px;
-    max-height: 30px;
+    flex: 1;
+    height: 28px;
+    max-height: 28px;
+    border-radius: var(--radius-sm);
+    background: var(--glass-bg-lighter);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -732,18 +735,23 @@ body {
 
 /* Full-width Loss Chart */
 .metric--chart-full {
-    flex: 1;
-    max-width: none;
+    flex: 0 0 auto;
+    max-width: 300px;
+    min-width: 200px;
     flex-direction: row;
     gap: 12px;
+    align-items: center;
 }
 
 .metric--chart-full .metric__label {
     white-space: nowrap;
+    font-size: 9px;
 }
 
 .metric--chart-full canvas {
     flex: 1;
-    height: 36px;
-    max-height: 36px;
+    height: 32px;
+    max-height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--glass-bg-lighter);
 }

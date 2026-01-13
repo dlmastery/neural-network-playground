@@ -14,6 +14,99 @@ import { ParticleSystem } from './visualization/particles.js';
 import { NetworkVisualizer } from './visualization/network-viz.js';
 import { BoundaryVisualizer } from './visualization/boundary-viz.js';
 
+// Tab Controller - manages tab switching and lazy loading
+class TabController {
+    constructor() {
+        this.activeTab = 'mlp';
+        this.cnnApp = null;
+        this.cnnInitialized = false;
+        this.transformerApp = null;
+        this.transformerInitialized = false;
+        this.init();
+    }
+
+    init() {
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.dataset.tab;
+                this.switchTab(tab);
+            });
+        });
+    }
+
+    async switchTab(tab) {
+        if (tab === this.activeTab) return;
+
+        this.activeTab = tab;
+
+        // Update button states
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.toggle('tab-btn--active', btn.dataset.tab === tab);
+        });
+
+        // Update panel visibility
+        document.querySelectorAll('.tab-panel').forEach(panel => {
+            panel.classList.toggle('tab-panel--active', panel.id === `${tab}-panel`);
+        });
+
+        // Lazy load CNN app when first accessed
+        if (tab === 'cnn' && !this.cnnInitialized) {
+            await this.initCNNApp();
+        }
+
+        // Lazy load Transformer app when first accessed
+        if (tab === 'transformer' && !this.transformerInitialized) {
+            await this.initTransformerApp();
+        }
+
+        // Notify active app of tab switch
+        if (tab === 'transformer' && this.transformerApp) {
+            this.transformerApp.onActivate();
+        }
+
+        // Trigger resize for visualizations to adapt
+        window.dispatchEvent(new Event('resize'));
+    }
+
+    async initCNNApp() {
+        try {
+            // Wait for TensorFlow.js to be ready
+            if (typeof tf === 'undefined') {
+                console.error('TensorFlow.js not loaded');
+                return;
+            }
+
+            console.log('Initializing CNN App with TensorFlow.js', tf.version.tfjs);
+
+            // Dynamically import CNN app
+            const { initCNNApp } = await import('./cnn/cnn-app.js');
+            this.cnnApp = await initCNNApp();
+            this.cnnInitialized = true;
+
+            console.log('CNN App initialized successfully');
+        } catch (error) {
+            console.error('Failed to initialize CNN App:', error);
+        }
+    }
+
+    async initTransformerApp() {
+        try {
+            console.log('Initializing Transformer App...');
+
+            // Dynamically import Transformer app
+            const { transformerApp } = await import('./transformer/transformer-app.js');
+            await transformerApp.init();
+            this.transformerApp = transformerApp;
+            this.transformerInitialized = true;
+
+            console.log('Transformer App initialized successfully');
+        } catch (error) {
+            console.error('Failed to initialize Transformer App:', error);
+        }
+    }
+}
+
 class NeuralPlayground {
     constructor() {
         // State
@@ -694,4 +787,5 @@ class NeuralPlayground {
 // Initialize application when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.playground = new NeuralPlayground();
+    window.tabController = new TabController();
 });

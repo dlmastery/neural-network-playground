@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/cnn.css">
+    <link rel="stylesheet" href="css/transformer.css">
 </head>
 <body>
     <!-- Particle Background Canvas -->
@@ -49,6 +51,13 @@
                 </div>
             </div>
 
+            <!-- Tab Navigation -->
+            <div class="tab-nav">
+                <button class="tab-btn tab-btn--active" data-tab="mlp">Neural Net</button>
+                <button class="tab-btn" data-tab="cnn">CNN</button>
+                <button class="tab-btn" data-tab="transformer">Transformer</button>
+            </div>
+
             <nav class="header__nav">
                 <button class="btn btn--ghost" id="btn-tutorial">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -67,6 +76,8 @@
             </nav>
         </header>
 
+        <!-- MLP Tab Panel -->
+        <div class="tab-panel tab-panel--active" id="mlp-panel">
         <!-- Top Controls Bar -->
         <div class="controls-bar glass-panel">
             <!-- Training Controls -->
@@ -291,6 +302,810 @@
                 </div>
             </section>
         </div>
+        </div><!-- End MLP Tab Panel -->
+
+        <!-- CNN Tab Panel -->
+        <div class="tab-panel" id="cnn-panel">
+            <!-- CNN Controls Bar -->
+            <div class="controls-bar glass-panel cnn-controls-bar">
+                <!-- Dataset Selection -->
+                <div class="control-section">
+                    <span class="control-section__label">Dataset</span>
+                    <select class="select select--compact" id="cnn-dataset-select">
+                        <option value="mnist">MNIST Digits</option>
+                        <option value="fashion">Fashion MNIST</option>
+                        <option value="cifar10">CIFAR-10</option>
+                    </select>
+                </div>
+
+                <div class="control-divider"></div>
+
+                <!-- Training Controls -->
+                <div class="control-section">
+                    <div class="training-controls cnn-training-controls">
+                        <button class="btn btn--primary btn--large" id="cnn-train-btn" title="Train">
+                            <svg class="icon-play" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="5 3 19 12 5 21 5 3"/>
+                            </svg>
+                            <svg class="icon-pause" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display:none">
+                                <rect x="6" y="4" width="4" height="16"/>
+                                <rect x="14" y="4" width="4" height="16"/>
+                            </svg>
+                            <span class="btn-text">Train</span>
+                        </button>
+                        <button class="btn btn--secondary" id="cnn-step-btn" title="Single Step">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="5 4 15 12 5 20 5 4" fill="currentColor"/>
+                                <line x1="19" y1="5" x2="19" y2="19"/>
+                            </svg>
+                        </button>
+                        <button class="btn btn--ghost" id="cnn-reset-btn" title="Reset">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                                <path d="M3 3v5h5"/>
+                            </svg>
+                        </button>
+                        <button class="btn btn--accent" id="cnn-explain-btn" title="Open CNN Explainer">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                            </svg>
+                            <span class="btn-text">Explain</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="control-divider"></div>
+
+                <!-- Metrics -->
+                <div class="control-section control-section--metrics">
+                    <div class="inline-metric">
+                        <span class="inline-metric__label">Epoch</span>
+                        <span class="inline-metric__value" id="cnn-epoch">0</span>
+                    </div>
+                    <div class="inline-metric">
+                        <span class="inline-metric__label">Loss</span>
+                        <span class="inline-metric__value inline-metric__value--loss" id="cnn-loss">0.000</span>
+                    </div>
+                    <div class="inline-metric">
+                        <span class="inline-metric__label">Train Acc</span>
+                        <span class="inline-metric__value inline-metric__value--accuracy" id="cnn-accuracy">0.0%</span>
+                    </div>
+                    <div class="inline-metric">
+                        <span class="inline-metric__label">Test Acc</span>
+                        <span class="inline-metric__value inline-metric__value--accuracy" id="cnn-test-accuracy">-</span>
+                    </div>
+                </div>
+
+                <div class="control-divider"></div>
+
+                <!-- Hyperparameters -->
+                <div class="control-section">
+                    <span class="control-section__label">LR</span>
+                    <input type="number" class="hyperparam__input" id="cnn-learning-rate" value="0.001" step="0.0001" min="0.0001" max="0.1">
+                </div>
+
+                <div class="control-section">
+                    <span class="control-section__label">Optimizer</span>
+                    <select class="select select--compact" id="cnn-optimizer">
+                        <option value="adam" selected>Adam</option>
+                        <option value="sgd">SGD</option>
+                        <option value="rmsprop">RMSprop</option>
+                    </select>
+                </div>
+
+                <div class="control-section">
+                    <span class="control-section__label">Batch</span>
+                    <select class="select select--compact" id="cnn-batch-size">
+                        <option value="16">16</option>
+                        <option value="32" selected>32</option>
+                        <option value="64">64</option>
+                        <option value="128">128</option>
+                    </select>
+                </div>
+
+                <!-- Backend/GPU Selection -->
+                <div class="control-section control-section--backend">
+                    <span class="control-section__label">Backend</span>
+                    <select class="select select--compact" id="cnn-backend-select">
+                        <option value="webgl" selected>WebGL (GPU)</option>
+                        <option value="webgpu">WebGPU</option>
+                        <option value="cpu">CPU</option>
+                    </select>
+                    <span class="backend-status" id="cnn-backend-status" title="Current backend"></span>
+                </div>
+            </div>
+
+            <!-- CNN Main Content -->
+            <div class="main-content cnn-panel">
+                <!-- Left Sidebar - Layer Builder -->
+                <aside class="sidebar sidebar--left glass-panel cnn-sidebar">
+                    <div class="cnn-sidebar__header">
+                        <h2 class="cnn-sidebar__title">CNN Layers</h2>
+                        <p class="cnn-sidebar__subtitle">Click a layer to view its activations</p>
+                    </div>
+
+                    <div class="cnn-sidebar__content">
+                        <!-- Loading Progress -->
+                        <div class="loading-progress" id="cnn-loading-progress">
+                            <div class="loading-progress__bar">
+                                <div class="loading-progress__fill" id="cnn-loading-bar"></div>
+                            </div>
+                        </div>
+
+                        <!-- Layers List -->
+                        <div class="cnn-layers-list" id="cnn-layers-list"></div>
+                    </div>
+
+                    <div class="cnn-sidebar__footer">
+                        <div class="add-layer-buttons">
+                            <button class="add-layer-btn add-layer-btn--conv" id="add-conv-btn">+ Conv2D</button>
+                            <button class="add-layer-btn add-layer-btn--pool" id="add-pool-btn">+ MaxPool</button>
+                            <button class="add-layer-btn add-layer-btn--dense" id="add-dense-btn">+ Dense</button>
+                            <button class="add-layer-btn add-layer-btn--dropout" id="add-dropout-btn">+ Dropout</button>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Center - Visualization Area -->
+                <section class="visualization cnn-visualization">
+                    <!-- Architecture Canvas -->
+                    <div class="viz-panel cnn-arch-panel glass-panel">
+                        <div class="viz-panel__header">
+                            <h3>CNN Architecture</h3>
+                        </div>
+                        <div class="viz-panel__body">
+                            <canvas id="cnn-arch-canvas"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Feature Maps Canvas -->
+                    <div class="viz-panel cnn-feature-panel glass-panel">
+                        <div class="viz-panel__header">
+                            <h3>Feature Maps</h3>
+                        </div>
+                        <div class="viz-panel__body">
+                            <canvas id="cnn-feature-canvas"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Right Sidebar - Preview -->
+                <aside class="sidebar sidebar--right glass-panel cnn-preview">
+                    <div class="cnn-preview__header">
+                        <h2 class="cnn-preview__title">Sample & Prediction</h2>
+                    </div>
+                    <div class="cnn-preview__content">
+                        <canvas id="cnn-preview-canvas" width="280" height="100"></canvas>
+                        <div id="cnn-prediction-bars"></div>
+                    </div>
+                </aside>
+            </div>
+        </div><!-- End CNN Tab Panel -->
+
+        <!-- CNN Explainer Modal -->
+        <div class="explainer-modal" id="cnn-explainer-modal">
+            <div class="explainer-modal__content glass-panel">
+                <!-- Header -->
+                <div class="explainer-modal__header">
+                    <h2 class="explainer-modal__title">CNN Explainer</h2>
+                    <p class="explainer-modal__subtitle">Understand how your CNN processes images</p>
+                    <button class="explainer-modal__close" id="explainer-close-btn">&times;</button>
+                </div>
+
+                <!-- Tab Navigation -->
+                <div class="explainer-tabs">
+                    <button class="explainer-tab-btn explainer-tab-btn--active" data-tab="overview">Overview</button>
+                    <button class="explainer-tab-btn" data-tab="draw">Draw</button>
+                    <button class="explainer-tab-btn" data-tab="filters">Filters</button>
+                    <button class="explainer-tab-btn" data-tab="activations">Activations</button>
+                    <button class="explainer-tab-btn" data-tab="flatten">Flatten</button>
+                    <button class="explainer-tab-btn" data-tab="softmax">Softmax</button>
+                    <button class="explainer-tab-btn" data-tab="saliency">Saliency</button>
+                    <button class="explainer-tab-btn" data-tab="conv-anim">Convolution</button>
+                </div>
+
+                <!-- Tab Panels -->
+                <div class="explainer-body">
+                    <!-- Overview Tab -->
+                    <div class="explainer-tab-panel explainer-tab-panel--active" id="explainer-overview-panel">
+                        <div class="explainer-grid explainer-grid--overview">
+                            <div class="explainer-card">
+                                <h3>Input Image</h3>
+                                <canvas id="explainer-input-canvas" width="200" height="200"></canvas>
+                            </div>
+                            <div class="explainer-card explainer-card--wide">
+                                <h3>Prediction</h3>
+                                <div id="explainer-prediction"></div>
+                            </div>
+                            <div class="explainer-card">
+                                <h3>Layer Info</h3>
+                                <div class="explainer-layer-selector">
+                                    <label>Select Layer:</label>
+                                    <select id="explainer-layer-select"></select>
+                                </div>
+                                <pre class="explainer-layer-info" id="explainer-layer-info"></pre>
+                            </div>
+                        </div>
+                        <div class="explainer-actions">
+                            <button class="btn btn--secondary" id="explainer-new-sample-btn">New Sample</button>
+                        </div>
+                    </div>
+
+                    <!-- Draw Tab -->
+                    <div class="explainer-tab-panel" id="explainer-draw-panel">
+                        <div class="explainer-grid explainer-grid--draw">
+                            <div class="explainer-card">
+                                <h3>Draw a Digit
+                                    <span class="edu-tooltip">
+                                        <span class="edu-tooltip__icon">?</span>
+                                        <span class="edu-tooltip__content">The model was trained on MNIST handwritten digits. Try drawing numbers 0-9 in the center of the canvas with a thick stroke, similar to how you'd write with a marker.</span>
+                                    </span>
+                                </h3>
+                                <div class="draw-canvas-container">
+                                    <canvas id="explainer-draw-canvas" width="280" height="280"></canvas>
+                                </div>
+                                <div class="draw-controls">
+                                    <button class="btn btn--secondary" id="explainer-clear-draw-btn">Clear</button>
+                                    <button class="btn btn--primary" id="explainer-predict-draw-btn">Predict</button>
+                                </div>
+                                <p class="draw-hint">Draw a digit (0-9) using your mouse or touch</p>
+                            </div>
+                            <div class="explainer-card explainer-card--wide">
+                                <h3>Live Prediction</h3>
+                                <div class="draw-preview">
+                                    <div class="draw-preview__processed">
+                                        <span class="draw-preview__label">Processed Input (28x28)</span>
+                                        <canvas id="explainer-draw-processed" width="112" height="112"></canvas>
+                                    </div>
+                                    <div class="draw-preview__prediction" id="explainer-draw-prediction"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="explainer-description">Draw your own digit to see how the CNN classifies it in real-time. The model processes your drawing as a 28x28 grayscale image, just like MNIST training data.</p>
+                    </div>
+
+                    <!-- Filters Tab -->
+                    <div class="explainer-tab-panel" id="explainer-filters-panel">
+                        <div class="explainer-layer-selector explainer-layer-selector--top">
+                            <label>Layer:
+                                <span class="edu-tooltip">
+                                    <span class="edu-tooltip__icon">?</span>
+                                    <span class="edu-tooltip__content">Convolutional layers apply small filter matrices to detect features like edges, corners, and textures. Earlier layers detect simple patterns, while deeper layers combine these into complex features.</span>
+                                </span>
+                            </label>
+                            <select id="explainer-filters-layer-select"></select>
+                        </div>
+                        <div class="explainer-canvas-container">
+                            <canvas id="explainer-filters-canvas" width="500" height="350"></canvas>
+                        </div>
+                        <p class="explainer-description">These are the learned filters (kernels) of the selected Conv2D layer. Each filter detects specific patterns in the input. Blue/red colors show positive/negative weights.</p>
+                    </div>
+
+                    <!-- Activations Tab -->
+                    <div class="explainer-tab-panel" id="explainer-activations-panel">
+                        <div class="explainer-layer-selector explainer-layer-selector--top">
+                            <label>Layer:
+                                <span class="edu-tooltip">
+                                    <span class="edu-tooltip__icon">?</span>
+                                    <span class="edu-tooltip__content">Activations (feature maps) show what each filter "sees" in the input. ReLU activation sets negative values to zero, keeping only positive responses which appear as bright areas.</span>
+                                </span>
+                            </label>
+                            <select id="explainer-activations-layer-select"></select>
+                        </div>
+                        <div class="explainer-canvas-container">
+                            <canvas id="explainer-activations-canvas" width="500" height="350"></canvas>
+                        </div>
+                        <p class="explainer-description">Feature maps (activations) show how each filter responds to the input image. Bright areas indicate strong activations - where the filter found its target pattern.</p>
+                    </div>
+
+                    <!-- Flatten Tab -->
+                    <div class="explainer-tab-panel" id="explainer-flatten-panel">
+                        <div class="explainer-grid explainer-grid--flatten">
+                            <div class="explainer-card">
+                                <h3>Before Flatten (2D Feature Maps)
+                                    <span class="edu-tooltip">
+                                        <span class="edu-tooltip__icon">?</span>
+                                        <span class="edu-tooltip__content">After convolution and pooling, data exists as multiple 2D feature maps (height × width × channels). Each "channel" represents one filter's output.</span>
+                                    </span>
+                                </h3>
+                                <canvas id="explainer-flatten-before" width="200" height="200"></canvas>
+                            </div>
+                            <div class="explainer-card explainer-card--arrow">
+                                <div class="flatten-arrow">
+                                    <svg width="60" height="60" viewBox="0 0 60 60">
+                                        <defs>
+                                            <linearGradient id="arrowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                <stop offset="0%" style="stop-color:#6366f1"/>
+                                                <stop offset="100%" style="stop-color:#8b5cf6"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <path d="M5 30 L45 30 M35 20 L45 30 L35 40" stroke="url(#arrowGrad)" stroke-width="4" fill="none"/>
+                                    </svg>
+                                    <span>Flatten</span>
+                                </div>
+                            </div>
+                            <div class="explainer-card">
+                                <h3>After Flatten (1D Vector)
+                                    <span class="edu-tooltip">
+                                        <span class="edu-tooltip__icon">?</span>
+                                        <span class="edu-tooltip__content">The flatten operation "unrolls" the 2D feature maps into a single 1D vector. This allows the data to connect to dense (fully connected) layers for classification.</span>
+                                    </span>
+                                </h3>
+                                <canvas id="explainer-flatten-after" width="60" height="400"></canvas>
+                            </div>
+                        </div>
+                        <div class="flatten-info" id="flatten-info"></div>
+                        <p class="explainer-description">The Flatten layer converts 2D feature maps into a 1D vector. This is necessary before passing data to Dense (fully connected) layers. The spatial structure is preserved in the ordering of values.</p>
+                    </div>
+
+                    <!-- Softmax Tab -->
+                    <div class="explainer-tab-panel" id="explainer-softmax-panel">
+                        <div class="explainer-grid explainer-grid--softmax">
+                            <div class="explainer-card">
+                                <h3>Raw Logits (Before Softmax)
+                                    <span class="edu-tooltip">
+                                        <span class="edu-tooltip__icon">?</span>
+                                        <span class="edu-tooltip__content">Logits are the raw output scores from the final dense layer, before normalization. They can be any real number - positive values indicate higher confidence for that class.</span>
+                                    </span>
+                                </h3>
+                                <canvas id="explainer-softmax-logits" width="300" height="280"></canvas>
+                            </div>
+                            <div class="explainer-card explainer-card--arrow">
+                                <div class="softmax-formula">
+                                    <div class="softmax-arrow">
+                                        <svg width="60" height="60" viewBox="0 0 60 60">
+                                            <path d="M5 30 L45 30 M35 20 L45 30 L35 40" stroke="url(#arrowGrad)" stroke-width="4" fill="none"/>
+                                        </svg>
+                                    </div>
+                                    <div class="softmax-equation">
+                                        <span class="equation-label">Softmax</span>
+                                        <span class="equation">σ(z)ᵢ = eᶻⁱ / Σⱼ eᶻʲ</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="explainer-card">
+                                <h3>Probabilities (After Softmax)
+                                    <span class="edu-tooltip">
+                                        <span class="edu-tooltip__icon">?</span>
+                                        <span class="edu-tooltip__content">Softmax converts logits to probabilities that sum to 1.0 (100%). The exponential function amplifies differences - the highest logit becomes a high probability, while others become near zero.</span>
+                                    </span>
+                                </h3>
+                                <canvas id="explainer-softmax-probs" width="300" height="280"></canvas>
+                            </div>
+                        </div>
+                        <div class="softmax-details" id="softmax-details"></div>
+                        <p class="explainer-description">Softmax converts raw network outputs (logits) into probabilities that sum to 1. Large positive values become high probabilities, while negative values become low probabilities. This is how the network expresses confidence in each class.</p>
+                    </div>
+
+                    <!-- Saliency Tab -->
+                    <div class="explainer-tab-panel" id="explainer-saliency-panel">
+                        <div class="explainer-canvas-container">
+                            <canvas id="explainer-saliency-canvas" width="300" height="300"></canvas>
+                        </div>
+                        <p class="explainer-description">The saliency map highlights which parts of the input image most strongly influence the model's prediction. Warmer colors indicate higher importance.</p>
+                    </div>
+
+                    <!-- Convolution Animation Tab -->
+                    <div class="explainer-tab-panel" id="explainer-conv-anim-panel">
+                        <div class="explainer-canvas-container explainer-canvas-container--wide">
+                            <canvas id="explainer-conv-anim-canvas" width="600" height="250"></canvas>
+                        </div>
+                        <div class="explainer-actions">
+                            <button class="btn btn--primary" id="explainer-play-conv-btn">Play</button>
+                        </div>
+                        <p class="explainer-description">Watch how a convolution filter slides over the input image, computing element-wise products at each position to produce the output feature map.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transformer Tab Panel -->
+        <div class="tab-panel" id="transformer-panel">
+            <!-- Transformer Controls Bar -->
+            <div class="controls-bar glass-panel transformer-controls-bar">
+                <!-- Model Selection -->
+                <div class="control-section">
+                    <span class="control-section__label">Model</span>
+                    <select class="select select--compact" id="transformer-model-select">
+                        <option value="Xenova/distilgpt2" selected>DistilGPT2 (88MB)</option>
+                        <option value="Xenova/gpt2">GPT-2 (167MB)</option>
+                    </select>
+                </div>
+
+                <div class="control-divider"></div>
+
+                <!-- Generation Controls -->
+                <div class="control-section">
+                    <div class="training-controls transformer-controls">
+                        <button class="btn btn--primary btn--large" id="transformer-generate-btn" title="Generate">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                            <span class="btn-text">Generate</span>
+                        </button>
+                        <button class="btn btn--secondary" id="transformer-stop-btn" title="Stop Generation" disabled>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <rect x="6" y="6" width="12" height="12" rx="2"/>
+                            </svg>
+                        </button>
+                        <button class="btn btn--accent" id="transformer-explain-btn" title="Open Transformer Explainer">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                            </svg>
+                            <span class="btn-text">Explain</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="control-divider"></div>
+
+                <!-- Status -->
+                <div class="control-section control-section--status">
+                    <div class="inline-metric">
+                        <span class="inline-metric__label">Status</span>
+                        <span class="inline-metric__value" id="transformer-status">Ready</span>
+                    </div>
+                    <div class="inline-metric">
+                        <span class="inline-metric__label">Tokens</span>
+                        <span class="inline-metric__value" id="transformer-tokens">0</span>
+                    </div>
+                </div>
+
+                <div class="control-divider"></div>
+
+                <!-- Generation Settings -->
+                <div class="control-section">
+                    <span class="control-section__label">Temperature</span>
+                    <input type="range" class="slider slider--compact" id="transformer-temperature" min="0.1" max="2.0" step="0.1" value="0.7">
+                    <span class="control-section__value" id="transformer-temp-value">0.7</span>
+                </div>
+
+                <div class="control-section">
+                    <span class="control-section__label">Max Length</span>
+                    <input type="number" class="hyperparam__input" id="transformer-max-length" value="50" min="10" max="200" step="10">
+                </div>
+
+                <!-- Backend/GPU Selection -->
+                <div class="control-section control-section--backend">
+                    <span class="control-section__label">Device</span>
+                    <select class="select select--compact" id="transformer-device-select">
+                        <option value="webgpu" selected>WebGPU (GPU)</option>
+                        <option value="wasm">CPU (WASM)</option>
+                    </select>
+                    <span class="backend-status" id="transformer-device-status" title="Current device"></span>
+                </div>
+            </div>
+
+            <!-- Transformer Main Content -->
+            <div class="main-content transformer-panel">
+                <!-- Left Sidebar - Model Info -->
+                <aside class="sidebar sidebar--left glass-panel transformer-sidebar">
+                    <div class="transformer-sidebar__header">
+                        <h2 class="transformer-sidebar__title">Model Info</h2>
+                    </div>
+
+                    <div class="transformer-sidebar__content">
+                        <!-- Loading Progress -->
+                        <div class="loading-progress" id="transformer-loading-progress">
+                            <div class="loading-status" id="transformer-loading-status">Loading model...</div>
+                            <div class="loading-progress__bar">
+                                <div class="loading-progress__fill" id="transformer-loading-bar"></div>
+                            </div>
+                        </div>
+
+                        <!-- Model Details -->
+                        <div class="transformer-model-info" id="transformer-model-info">
+                            <div class="model-info-item">
+                                <span class="model-info-label">Model</span>
+                                <span class="model-info-value" id="model-name">DistilGPT2</span>
+                            </div>
+                            <div class="model-info-item">
+                                <span class="model-info-label">Parameters</span>
+                                <span class="model-info-value" id="model-params">82M</span>
+                            </div>
+                            <div class="model-info-item">
+                                <span class="model-info-label">Layers</span>
+                                <span class="model-info-value" id="model-layers">6</span>
+                            </div>
+                            <div class="model-info-item">
+                                <span class="model-info-label">Hidden Size</span>
+                                <span class="model-info-value" id="model-hidden">768</span>
+                            </div>
+                            <div class="model-info-item">
+                                <span class="model-info-label">Attention Heads</span>
+                                <span class="model-info-value" id="model-heads">12</span>
+                            </div>
+                            <div class="model-info-item">
+                                <span class="model-info-label">Vocab Size</span>
+                                <span class="model-info-value" id="model-vocab">50257</span>
+                            </div>
+                        </div>
+
+                        <!-- Architecture Overview -->
+                        <div class="transformer-architecture-mini">
+                            <h3>Architecture</h3>
+                            <div class="arch-block arch-block--embed">Embeddings</div>
+                            <div class="arch-connector">↓</div>
+                            <div class="arch-block arch-block--attention">Self-Attention ×6</div>
+                            <div class="arch-connector">↓</div>
+                            <div class="arch-block arch-block--ffn">Feed Forward</div>
+                            <div class="arch-connector">↓</div>
+                            <div class="arch-block arch-block--output">LM Head</div>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Center - Main Visualization -->
+                <section class="visualization transformer-visualization">
+                    <!-- Text Input/Output -->
+                    <div class="viz-panel transformer-io-panel glass-panel">
+                        <div class="viz-panel__header">
+                            <h3>Text Generation</h3>
+                        </div>
+                        <div class="viz-panel__body transformer-io">
+                            <div class="transformer-input-container">
+                                <label for="transformer-input">Input Prompt:</label>
+                                <textarea id="transformer-input" class="transformer-input" placeholder="The quick brown fox" rows="3">The quick brown fox</textarea>
+                            </div>
+                            <div class="transformer-output-container">
+                                <label>Generated Output:</label>
+                                <div class="transformer-output" id="transformer-output">
+                                    <span class="transformer-output__placeholder">Click "Generate" to create text...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Architecture Visualization -->
+                    <div class="viz-panel transformer-arch-panel glass-panel">
+                        <div class="viz-panel__header">
+                            <h3>Transformer Architecture</h3>
+                        </div>
+                        <div class="viz-panel__body">
+                            <canvas id="transformer-arch-canvas"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Right Sidebar - Attention View -->
+                <aside class="sidebar sidebar--right glass-panel transformer-attention">
+                    <div class="transformer-attention__header">
+                        <h2 class="transformer-attention__title">Attention</h2>
+                    </div>
+                    <div class="transformer-attention__content">
+                        <div class="attention-controls">
+                            <div class="attention-select">
+                                <label>Layer:</label>
+                                <select id="transformer-attention-layer">
+                                    <option value="0">Layer 1</option>
+                                    <option value="1">Layer 2</option>
+                                    <option value="2">Layer 3</option>
+                                    <option value="3">Layer 4</option>
+                                    <option value="4">Layer 5</option>
+                                    <option value="5">Layer 6</option>
+                                </select>
+                            </div>
+                            <div class="attention-select">
+                                <label>Head:</label>
+                                <select id="transformer-attention-head">
+                                    <option value="0">Head 1</option>
+                                    <option value="1">Head 2</option>
+                                    <option value="2">Head 3</option>
+                                    <option value="3">Head 4</option>
+                                    <option value="4">Head 5</option>
+                                    <option value="5">Head 6</option>
+                                    <option value="6">Head 7</option>
+                                    <option value="7">Head 8</option>
+                                    <option value="8">Head 9</option>
+                                    <option value="9">Head 10</option>
+                                    <option value="10">Head 11</option>
+                                    <option value="11">Head 12</option>
+                                </select>
+                            </div>
+                        </div>
+                        <canvas id="transformer-attention-canvas" width="280" height="280"></canvas>
+                        <div class="attention-tokens" id="transformer-attention-tokens">
+                            <span class="attention-hint">Generate text to see attention patterns</span>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div><!-- End Transformer Tab Panel -->
+
+        <!-- Transformer Explainer Modal -->
+        <div class="explainer-modal" id="transformer-explainer-modal">
+            <div class="explainer-modal__content glass-panel">
+                <!-- Header -->
+                <div class="explainer-modal__header">
+                    <h2 class="explainer-modal__title">Transformer Explainer</h2>
+                    <p class="explainer-modal__subtitle">Understand how transformers process language</p>
+                    <button class="explainer-modal__close" id="transformer-explainer-close-btn">&times;</button>
+                </div>
+
+                <!-- Tab Navigation -->
+                <div class="explainer-tabs">
+                    <button class="explainer-tab-btn explainer-tab-btn--active" data-tab="t-overview">Overview</button>
+                    <button class="explainer-tab-btn" data-tab="t-tokenization">Tokenization</button>
+                    <button class="explainer-tab-btn" data-tab="t-embeddings">Embeddings</button>
+                    <button class="explainer-tab-btn" data-tab="t-attention">Attention</button>
+                    <button class="explainer-tab-btn" data-tab="t-multihead">Multi-Head</button>
+                    <button class="explainer-tab-btn" data-tab="t-generation">Generation</button>
+                </div>
+
+                <!-- Tab Panels -->
+                <div class="explainer-body">
+                    <!-- Overview Tab -->
+                    <div class="explainer-tab-panel explainer-tab-panel--active" id="t-overview-panel">
+                        <div class="explainer-grid explainer-grid--overview">
+                            <div class="explainer-card explainer-card--full">
+                                <h3>What is a Transformer?</h3>
+                                <p>Transformers are neural network architectures that revolutionized NLP. Unlike RNNs that process sequences step-by-step, transformers process all tokens in parallel using <strong>self-attention</strong>.</p>
+                                <div class="transformer-diagram" id="transformer-overview-diagram">
+                                    <canvas id="transformer-overview-canvas" width="500" height="300"></canvas>
+                                </div>
+                            </div>
+                            <div class="explainer-card">
+                                <h3>Key Innovation: Attention</h3>
+                                <p>"Attention Is All You Need" (2017) showed that attention mechanisms alone, without recurrence, can achieve state-of-the-art results.</p>
+                                <ul class="explainer-list">
+                                    <li>Parallel processing of sequences</li>
+                                    <li>Direct connections between any tokens</li>
+                                    <li>Learnable relationships</li>
+                                </ul>
+                            </div>
+                            <div class="explainer-card">
+                                <h3>Applications</h3>
+                                <ul class="explainer-list">
+                                    <li><strong>GPT</strong> - Text generation</li>
+                                    <li><strong>BERT</strong> - Understanding</li>
+                                    <li><strong>T5</strong> - Text-to-text</li>
+                                    <li><strong>Vision Transformers</strong> - Images</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tokenization Tab -->
+                    <div class="explainer-tab-panel" id="t-tokenization-panel">
+                        <div class="explainer-card explainer-card--full">
+                            <h3>Interactive Tokenizer</h3>
+                            <p>Type text below to see how it gets split into tokens. GPT-2 uses Byte Pair Encoding (BPE).</p>
+                            <div class="tokenizer-demo">
+                                <input type="text" id="tokenizer-input" class="tokenizer-input" placeholder="Type something..." value="Hello, world!">
+                                <div class="tokenizer-output" id="tokenizer-output"></div>
+                                <div class="tokenizer-ids" id="tokenizer-ids"></div>
+                            </div>
+                        </div>
+                        <p class="explainer-description">Tokenization breaks text into subword units. Common words become single tokens, while rare words are split into pieces. This allows handling any text with a fixed vocabulary.</p>
+                    </div>
+
+                    <!-- Embeddings Tab -->
+                    <div class="explainer-tab-panel" id="t-embeddings-panel">
+                        <div class="explainer-grid explainer-grid--embeddings">
+                            <div class="explainer-card">
+                                <h3>Token Embeddings</h3>
+                                <p>Each token ID maps to a learned 768-dimensional vector that captures its meaning.</p>
+                                <canvas id="embedding-token-canvas" width="200" height="200"></canvas>
+                            </div>
+                            <div class="explainer-card explainer-card--arrow">
+                                <div class="embedding-plus">+</div>
+                            </div>
+                            <div class="explainer-card">
+                                <h3>Position Embeddings</h3>
+                                <p>Since attention is position-agnostic, we add position information to each token.</p>
+                                <canvas id="embedding-position-canvas" width="200" height="200"></canvas>
+                            </div>
+                            <div class="explainer-card explainer-card--arrow">
+                                <div class="embedding-equals">=</div>
+                            </div>
+                            <div class="explainer-card">
+                                <h3>Combined Embedding</h3>
+                                <p>The final embedding combines semantic meaning with positional information.</p>
+                                <canvas id="embedding-combined-canvas" width="200" height="200"></canvas>
+                            </div>
+                        </div>
+                        <p class="explainer-description">Embeddings convert discrete tokens into continuous vectors that the network can process. Position embeddings tell the model where each token appears in the sequence.</p>
+                    </div>
+
+                    <!-- Attention Tab -->
+                    <div class="explainer-tab-panel" id="t-attention-panel">
+                        <div class="explainer-card explainer-card--full">
+                            <h3>Self-Attention Mechanism</h3>
+                            <div class="attention-demo">
+                                <div class="attention-qkv">
+                                    <div class="qkv-column">
+                                        <h4>Query (Q)</h4>
+                                        <p>What am I looking for?</p>
+                                        <canvas id="attention-q-canvas" width="120" height="120"></canvas>
+                                    </div>
+                                    <div class="qkv-multiply">×</div>
+                                    <div class="qkv-column">
+                                        <h4>Key (K)</h4>
+                                        <p>What do I contain?</p>
+                                        <canvas id="attention-k-canvas" width="120" height="120"></canvas>
+                                    </div>
+                                    <div class="qkv-equals">→</div>
+                                    <div class="qkv-column">
+                                        <h4>Scores</h4>
+                                        <p>Attention weights</p>
+                                        <canvas id="attention-scores-canvas" width="120" height="120"></canvas>
+                                    </div>
+                                    <div class="qkv-multiply">×</div>
+                                    <div class="qkv-column">
+                                        <h4>Value (V)</h4>
+                                        <p>What to retrieve?</p>
+                                        <canvas id="attention-v-canvas" width="120" height="120"></canvas>
+                                    </div>
+                                </div>
+                                <div class="attention-formula">
+                                    <span class="formula">Attention(Q, K, V) = softmax(QK<sup>T</sup> / √d<sub>k</sub>)V</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="explainer-description">Self-attention allows each token to "attend" to all other tokens. Query and Key dot products determine attention weights, which are used to aggregate Value vectors.</p>
+                    </div>
+
+                    <!-- Multi-Head Tab -->
+                    <div class="explainer-tab-panel" id="t-multihead-panel">
+                        <div class="explainer-card explainer-card--full">
+                            <h3>Multi-Head Attention</h3>
+                            <p>Instead of one attention mechanism, transformers use multiple "heads" in parallel, each learning different relationships.</p>
+                            <div class="multihead-demo">
+                                <canvas id="multihead-canvas" width="500" height="300"></canvas>
+                            </div>
+                            <div class="multihead-info">
+                                <div class="head-example">
+                                    <strong>Head 1:</strong> Subject-verb relationships
+                                </div>
+                                <div class="head-example">
+                                    <strong>Head 2:</strong> Adjective-noun pairs
+                                </div>
+                                <div class="head-example">
+                                    <strong>Head 3:</strong> Coreference (pronouns)
+                                </div>
+                            </div>
+                        </div>
+                        <p class="explainer-description">Multiple attention heads allow the model to jointly attend to information from different representation subspaces. GPT-2 uses 12 heads per layer.</p>
+                    </div>
+
+                    <!-- Generation Tab -->
+                    <div class="explainer-tab-panel" id="t-generation-panel">
+                        <div class="explainer-card explainer-card--full">
+                            <h3>Autoregressive Generation</h3>
+                            <p>GPT generates text one token at a time, using all previous tokens as context.</p>
+                            <div class="generation-demo">
+                                <div class="generation-step" id="generation-step-viz"></div>
+                                <div class="generation-controls">
+                                    <button class="btn btn--secondary" id="generation-step-btn">Step</button>
+                                    <button class="btn btn--primary" id="generation-auto-btn">Auto-Generate</button>
+                                </div>
+                            </div>
+                            <div class="generation-sampling">
+                                <h4>Sampling Strategies</h4>
+                                <div class="sampling-options">
+                                    <div class="sampling-option">
+                                        <strong>Greedy:</strong> Always pick highest probability
+                                    </div>
+                                    <div class="sampling-option">
+                                        <strong>Temperature:</strong> Scale logits before softmax
+                                    </div>
+                                    <div class="sampling-option">
+                                        <strong>Top-k:</strong> Sample from top k tokens
+                                    </div>
+                                    <div class="sampling-option">
+                                        <strong>Nucleus (Top-p):</strong> Sample from smallest set summing to p
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Bottom Panel - Loss Chart -->
         <footer class="metrics-bar glass-panel">
@@ -304,6 +1119,9 @@
             </div>
         </footer>
     </div>
+
+    <!-- TensorFlow.js for CNN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
 
     <script type="module" src="js/main.js"></script>
 </body>
