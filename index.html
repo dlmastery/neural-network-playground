@@ -61,6 +61,7 @@
                 <button class="tab-btn" data-tab="transformer">Transformer</button>
                 <button class="tab-btn" data-tab="gnn">GNN</button>
                 <button class="tab-btn" data-tab="diffusion">Diffusion</button>
+                <button class="tab-btn" data-tab="design-spaces">Design Spaces</button>
             </div>
 
             <nav class="header__nav">
@@ -1226,6 +1227,88 @@
                 </aside>
             </div>
         </div><!-- End Diffusion Tab Panel -->
+
+        <!-- Design Spaces Tab Panel -->
+        <div class="tab-panel" id="design-spaces-panel">
+            <!-- Controls Bar -->
+            <div class="controls-bar glass-panel design-spaces-controls">
+                <div class="control-section">
+                    <span class="control-section__label">Architecture</span>
+                    <span class="inline-metric__value" id="design-spaces-current-arch">Transformers</span>
+                </div>
+
+                <div class="control-divider"></div>
+
+                <div class="control-section">
+                    <input type="text" class="input input--compact" id="design-spaces-search" placeholder="Search parameters...">
+                </div>
+
+                <div class="control-divider"></div>
+
+                <div class="control-section">
+                    <span class="control-section__label">View</span>
+                    <div class="btn-group">
+                        <button class="btn btn--small btn--active" data-view="cards" id="design-spaces-view-cards">Cards</button>
+                        <button class="btn btn--small" data-view="table" id="design-spaces-view-table">Table</button>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <button class="btn btn--accent" id="design-spaces-copy-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                        Copy Config
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content design-spaces-main">
+                <!-- Left Sidebar - Architecture Navigator -->
+                <aside class="sidebar sidebar--left glass-panel design-spaces-nav">
+                    <div class="sidebar__header">
+                        <h3>Architectures</h3>
+                    </div>
+                    <div class="sidebar__content" id="design-spaces-arch-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </aside>
+
+                <!-- Center - Parameter Cards -->
+                <section class="canvas-area design-spaces-params">
+                    <div class="design-spaces-params-header">
+                        <h2 id="design-spaces-arch-title">Transformers</h2>
+                        <p id="design-spaces-arch-desc">Attention-based architecture for sequence modeling</p>
+                    </div>
+                    <div class="design-spaces-params-grid" id="design-spaces-params-grid">
+                        <!-- Populated by JS -->
+                    </div>
+                </section>
+
+                <!-- Right Sidebar - Quick Reference -->
+                <aside class="sidebar sidebar--right glass-panel design-spaces-info">
+                    <div class="sidebar__header">
+                        <h3>Quick Reference</h3>
+                    </div>
+                    <div class="sidebar__content" id="design-spaces-quick-ref">
+                        <div class="quick-ref-section">
+                            <h4>When to Use</h4>
+                            <p id="design-spaces-when-to-use">Sequential data, NLP, time series</p>
+                        </div>
+                        <div class="quick-ref-section">
+                            <h4>Key Innovation</h4>
+                            <p id="design-spaces-innovation">Self-attention mechanism</p>
+                        </div>
+                        <div class="quick-ref-section">
+                            <h4>Typical Size</h4>
+                            <p id="design-spaces-size">10M - 175B parameters</p>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div><!-- End Design Spaces Tab Panel -->
 
         <!-- Diffusion Explainer Modal -->
         <div class="explainer-modal" id="diffusion-explainer-modal">
