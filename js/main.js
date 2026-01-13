@@ -24,6 +24,8 @@ class TabController {
         this.transformerInitialized = false;
         this.gnnApp = null;
         this.gnnInitialized = false;
+        this.diffusionApp = null;
+        this.diffusionInitialized = false;
         this.init();
     }
 
@@ -65,6 +67,11 @@ class TabController {
         // Lazy load GNN app when first accessed
         if (tab === 'gnn' && !this.gnnInitialized) {
             await this.initGNNApp();
+        }
+
+        // Lazy load Diffusion app when first accessed
+        if (tab === 'diffusion' && !this.diffusionInitialized) {
+            await this.initDiffusionApp();
         }
 
         // Notify active app of tab switch
@@ -129,6 +136,30 @@ class TabController {
             console.log('GNN App initialized successfully');
         } catch (error) {
             console.error('Failed to initialize GNN App:', error);
+        }
+    }
+
+    async initDiffusionApp() {
+        try {
+            console.log('Initializing Diffusion App...');
+
+            // Dynamically import Diffusion app and visualization
+            const { diffusionApp } = await import('./diffusion/diffusion-app.js');
+            const { diffusionViz } = await import('./diffusion/diffusion-viz.js');
+
+            await diffusionApp.init();
+            diffusionViz.init(
+                document.getElementById('diffusion-grid-canvas'),
+                document.getElementById('diffusion-timeline-canvas'),
+                document.getElementById('diffusion-arch-mini-canvas')
+            );
+
+            this.diffusionApp = diffusionApp;
+            this.diffusionInitialized = true;
+
+            console.log('Diffusion App initialized successfully');
+        } catch (error) {
+            console.error('Failed to initialize Diffusion App:', error);
         }
     }
 }
