@@ -15,6 +15,8 @@
     <link rel="stylesheet" href="css/animations.css">
     <link rel="stylesheet" href="css/cnn.css">
     <link rel="stylesheet" href="css/transformer.css">
+    <link rel="stylesheet" href="css/transformer-explainer-full.css">
+    <link rel="stylesheet" href="css/gnn.css">
 </head>
 <body>
     <!-- Particle Background Canvas -->
@@ -56,6 +58,7 @@
                 <button class="tab-btn tab-btn--active" data-tab="mlp">Neural Net</button>
                 <button class="tab-btn" data-tab="cnn">CNN</button>
                 <button class="tab-btn" data-tab="transformer">Transformer</button>
+                <button class="tab-btn" data-tab="gnn">GNN</button>
             </div>
 
             <nav class="header__nav">
@@ -916,6 +919,134 @@
             </div>
         </div><!-- End Transformer Tab Panel -->
 
+        <!-- GNN Tab Panel -->
+        <div class="tab-panel" id="gnn-panel">
+            <!-- Controls Bar -->
+            <div class="controls-bar glass-panel gnn-controls">
+                <div class="control-section">
+                    <label class="control-label">Dataset</label>
+                    <select id="gnn-dataset-select" class="control-select">
+                        <option value="karate">Karate Club (34 nodes)</option>
+                        <option value="synthetic">Synthetic Graph</option>
+                    </select>
+                </div>
+                <div class="control-divider"></div>
+                <div class="control-section">
+                    <label class="control-label">Architecture</label>
+                    <select id="gnn-arch-select" class="control-select">
+                        <option value="gcn">GCN (Graph Convolution)</option>
+                        <option value="gat">GAT (Graph Attention)</option>
+                    </select>
+                </div>
+                <div class="control-divider"></div>
+                <div class="control-section">
+                    <label class="control-label">Layers</label>
+                    <input type="range" id="gnn-layers" class="control-slider" min="1" max="4" value="2">
+                    <span id="gnn-layers-value" class="control-value">2</span>
+                </div>
+                <div class="control-divider"></div>
+                <div class="control-section control-section--buttons">
+                    <button id="gnn-train-btn" class="btn btn--primary btn--sm">Train</button>
+                    <button id="gnn-stop-btn" class="btn btn--secondary btn--sm" disabled>Stop</button>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content gnn-main">
+                <!-- Left: Graph Structure -->
+                <aside class="sidebar sidebar--left glass-panel gnn-sidebar">
+                    <div class="sidebar__header">
+                        <h3>Graph Structure</h3>
+                    </div>
+                    <div class="sidebar__content">
+                        <div class="gnn-graph-container">
+                            <canvas id="gnn-graph-canvas" width="260" height="260"></canvas>
+                        </div>
+                        <div class="gnn-graph-info">
+                            <span>Nodes: <strong id="gnn-node-count">34</strong></span>
+                            <span>Edges: <strong id="gnn-edge-count">78</strong></span>
+                        </div>
+                        <div class="gnn-legend">
+                            <div class="legend-item">
+                                <span class="legend-dot legend-dot--class-a"></span>
+                                <span>Class A (Mr. Hi)</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot legend-dot--class-b"></span>
+                                <span>Class B (Officer)</span>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Center: Visualizations -->
+                <section class="visualization gnn-visualization">
+                    <!-- Message Passing Panel -->
+                    <div class="viz-panel glass-panel gnn-message-panel">
+                        <div class="viz-panel__header">
+                            <h3>Message Passing</h3>
+                            <span class="viz-panel__badge">Layer <span id="gnn-current-layer">1</span></span>
+                        </div>
+                        <div class="viz-panel__content">
+                            <canvas id="gnn-message-canvas" width="500" height="280"></canvas>
+                        </div>
+                        <div class="viz-panel__footer gnn-animation-controls">
+                            <button id="gnn-play-btn" class="btn btn--icon" title="Play animation">&#9654;</button>
+                            <button id="gnn-step-btn" class="btn btn--icon" title="Step one layer">&#9197;</button>
+                            <button id="gnn-reset-btn" class="btn btn--icon" title="Reset">&#8634;</button>
+                            <div class="gnn-layer-progress">
+                                <div class="progress-track">
+                                    <div id="gnn-layer-progress" class="progress-fill" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Embeddings Panel -->
+                    <div class="viz-panel glass-panel gnn-embedding-panel">
+                        <div class="viz-panel__header">
+                            <h3>Node Embeddings (2D Projection)</h3>
+                        </div>
+                        <div class="viz-panel__content">
+                            <canvas id="gnn-embedding-canvas" width="500" height="200"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Right: Node Details & Training -->
+                <aside class="sidebar sidebar--right glass-panel gnn-details">
+                    <div class="sidebar__header">
+                        <h3>Node Details</h3>
+                    </div>
+                    <div class="sidebar__content">
+                        <div id="gnn-node-details" class="gnn-node-info">
+                            <p class="gnn-node-hint">Click a node to inspect</p>
+                        </div>
+                    </div>
+
+                    <div class="sidebar__header">
+                        <h3>Training Metrics</h3>
+                    </div>
+                    <div class="sidebar__content">
+                        <div class="gnn-metrics">
+                            <div class="metric-row">
+                                <span class="metric-label">Epoch</span>
+                                <span id="gnn-epoch" class="metric-value">0</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Loss</span>
+                                <span id="gnn-loss" class="metric-value">-</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Accuracy</span>
+                                <span id="gnn-accuracy" class="metric-value">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div><!-- End GNN Tab Panel -->
+
         <!-- Transformer Explainer Modal -->
         <div class="explainer-modal" id="transformer-explainer-modal">
             <div class="explainer-modal__content glass-panel">
@@ -1118,6 +1249,132 @@
                 <span class="metric__value" id="metric-speed">0 iter/s</span>
             </div>
         </footer>
+    </div>
+
+    <!-- Transformer Explainer Full View (Full-Page Interactive) -->
+    <div class="explainer-full-view" id="transformer-explainer-view">
+        <!-- Header -->
+        <header class="explainer-header">
+            <div class="explainer-header__left">
+                <button class="explainer-back-btn" id="explainer-back-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    Back
+                </button>
+                <h1 class="explainer-header__title">TRANSFORMER <span>EXPLAINER</span></h1>
+            </div>
+            <div class="explainer-header__right">
+                <div class="explainer-control-group">
+                    <label>Temperature</label>
+                    <input type="range" id="explainer-temperature" min="0.1" max="2.0" step="0.1" value="1.0">
+                    <span class="value-display" id="explainer-temp-value">1.0</span>
+                </div>
+                <div class="explainer-control-group">
+                    <label>Layer</label>
+                    <select id="explainer-layer-select">
+                        <option value="0">Layer 1</option>
+                        <option value="1">Layer 2</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+
+        <!-- Input Section -->
+        <div class="explainer-input-section">
+            <div class="explainer-input-row">
+                <span class="explainer-input-label">INPUT:</span>
+                <input type="text" class="explainer-input-text" id="explainer-input-text"
+                       value="The quick brown fox" placeholder="Type your text here...">
+                <div class="explainer-input-actions">
+                    <button class="explainer-btn explainer-btn--primary" id="explainer-step-btn">Step</button>
+                    <button class="explainer-btn explainer-btn--secondary" id="explainer-auto-btn">Auto</button>
+                    <button class="explainer-btn explainer-btn--secondary" id="explainer-reset-btn">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <main class="explainer-main">
+            <!-- Embeddings Panel (Left) -->
+            <div class="explainer-panel explainer-embeddings">
+                <div class="explainer-panel__header">
+                    <h2 class="explainer-panel__title">Embeddings</h2>
+                    <span class="explainer-panel__subtitle">Token + Position</span>
+                </div>
+                <div class="explainer-panel__content">
+                    <canvas class="explainer-embeddings-canvas" id="explainer-embeddings-canvas"></canvas>
+                </div>
+            </div>
+
+            <!-- Transformer Block (Right) -->
+            <div class="explainer-panel explainer-transformer-block">
+                <div class="explainer-panel__header">
+                    <h2 class="explainer-panel__title">Transformer Block</h2>
+                    <div class="explainer-layer-selector">
+                        <button class="explainer-layer-btn active" data-layer="0">Layer 1</button>
+                        <button class="explainer-layer-btn" data-layer="1">Layer 2</button>
+                    </div>
+                </div>
+                <div class="explainer-panel__content">
+                    <!-- Attention Sub-panel -->
+                    <div class="explainer-subpanel">
+                        <div class="explainer-subpanel__header">
+                            <span class="explainer-subpanel__title">Multi-Head Self-Attention</span>
+                            <span class="explainer-subpanel__info">4 heads × 16 dims</span>
+                        </div>
+                        <canvas class="explainer-attention-canvas" id="explainer-attention-canvas"></canvas>
+                    </div>
+
+                    <!-- FFN Sub-panel -->
+                    <div class="explainer-subpanel">
+                        <div class="explainer-subpanel__header">
+                            <span class="explainer-subpanel__title">Feed-Forward Network</span>
+                            <span class="explainer-subpanel__info">64 → 256 → 64</span>
+                        </div>
+                        <canvas class="explainer-ffn-canvas" id="explainer-ffn-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Output Panel (Bottom, spans both columns) -->
+            <div class="explainer-panel explainer-output">
+                <div class="explainer-panel__header">
+                    <h2 class="explainer-panel__title">Output Predictions</h2>
+                </div>
+                <div class="explainer-panel__content">
+                    <div class="explainer-output-grid">
+                        <!-- Generated Tokens -->
+                        <div class="explainer-tokens-section">
+                            <span class="explainer-tokens-label">Generated Sequence</span>
+                            <canvas class="explainer-tokens-canvas" id="explainer-tokens-canvas"></canvas>
+                        </div>
+
+                        <!-- Probability Distribution -->
+                        <div class="explainer-probabilities-section">
+                            <span class="explainer-tokens-label">Top-5 Predictions</span>
+                            <canvas class="explainer-probabilities-canvas" id="explainer-probabilities-canvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Bar -->
+                <div class="explainer-info-bar">
+                    <div class="explainer-info-item">
+                        <span class="explainer-info-item__label">Token Count:</span>
+                        <span class="explainer-info-item__value" id="explainer-token-count">0</span>
+                    </div>
+                    <div class="explainer-info-item">
+                        <span class="explainer-info-item__label">Current Token:</span>
+                        <span class="explainer-info-item__value explainer-info-item__value--highlight" id="explainer-current-token">-</span>
+                    </div>
+                    <div class="explainer-info-item">
+                        <span class="explainer-info-item__label">Model:</span>
+                        <span class="explainer-info-item__value">PicoGPT (2 layers, 4 heads, 64 dim)</span>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <!-- TensorFlow.js for CNN -->

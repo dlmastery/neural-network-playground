@@ -22,6 +22,8 @@ class TabController {
         this.cnnInitialized = false;
         this.transformerApp = null;
         this.transformerInitialized = false;
+        this.gnnApp = null;
+        this.gnnInitialized = false;
         this.init();
     }
 
@@ -60,9 +62,17 @@ class TabController {
             await this.initTransformerApp();
         }
 
+        // Lazy load GNN app when first accessed
+        if (tab === 'gnn' && !this.gnnInitialized) {
+            await this.initGNNApp();
+        }
+
         // Notify active app of tab switch
         if (tab === 'transformer' && this.transformerApp) {
             this.transformerApp.onActivate();
+        }
+        if (tab === 'gnn' && this.gnnApp) {
+            this.gnnApp.onActivate();
         }
 
         // Trigger resize for visualizations to adapt
@@ -103,6 +113,22 @@ class TabController {
             console.log('Transformer App initialized successfully');
         } catch (error) {
             console.error('Failed to initialize Transformer App:', error);
+        }
+    }
+
+    async initGNNApp() {
+        try {
+            console.log('Initializing GNN App...');
+
+            // Dynamically import GNN app
+            const { GNNApp } = await import('./gnn/gnn-app.js');
+            this.gnnApp = new GNNApp();
+            await this.gnnApp.init();
+            this.gnnInitialized = true;
+
+            console.log('GNN App initialized successfully');
+        } catch (error) {
+            console.error('Failed to initialize GNN App:', error);
         }
     }
 }

@@ -1,0 +1,412 @@
+/**
+ * GNN Tab Styles
+ * Styles for Graph Neural Network visualization
+ */
+
+/* ==================== Main Layout ==================== */
+
+.gnn-main {
+    display: grid;
+    grid-template-columns: 280px 1fr 280px;
+    gap: 16px;
+    padding: 16px;
+    height: calc(100vh - var(--header-height) - var(--controls-height) - 32px);
+    min-height: 500px;
+}
+
+/* ==================== Controls Bar ==================== */
+
+.gnn-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+}
+
+/* ==================== Left Sidebar - Graph Structure ==================== */
+
+.gnn-sidebar {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.gnn-graph-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    min-height: 260px;
+}
+
+#gnn-graph-canvas {
+    background: var(--color-bg-tertiary);
+    border-radius: 8px;
+    cursor: default;
+}
+
+.gnn-graph-info {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    border-top: 1px solid var(--glass-border);
+}
+
+.gnn-graph-info strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
+}
+
+/* Legend */
+.gnn-legend {
+    padding: 12px;
+    border-top: 1px solid var(--glass-border);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 6px;
+}
+
+.legend-item:last-child {
+    margin-bottom: 0;
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.legend-dot--class-a {
+    background: #3b82f6;
+}
+
+.legend-dot--class-b {
+    background: #ef4444;
+}
+
+/* ==================== Center - Visualizations ==================== */
+
+.gnn-visualization {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+}
+
+.gnn-message-panel {
+    flex: 1.5;
+    display: flex;
+    flex-direction: column;
+    min-height: 300px;
+}
+
+.gnn-embedding-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+}
+
+.viz-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.viz-panel__header h3 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.viz-panel__badge {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    background: var(--color-primary);
+    color: white;
+    border-radius: 4px;
+}
+
+.viz-panel__content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    min-height: 0;
+}
+
+.viz-panel__content canvas {
+    max-width: 100%;
+    max-height: 100%;
+    background: var(--color-bg-tertiary);
+    border-radius: 6px;
+}
+
+.viz-panel__footer {
+    padding: 10px 14px;
+    border-top: 1px solid var(--glass-border);
+}
+
+/* Animation Controls */
+.gnn-animation-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.gnn-animation-controls .btn--icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.gnn-animation-controls .btn--icon:hover {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+.gnn-layer-progress {
+    flex: 1;
+    margin-left: 8px;
+}
+
+.progress-track {
+    height: 6px;
+    background: var(--color-bg-tertiary);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+    border-radius: 3px;
+    transition: width 0.1s ease;
+}
+
+/* ==================== Right Sidebar - Details ==================== */
+
+.gnn-details {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.gnn-node-info {
+    padding: 4px 0;
+}
+
+.gnn-node-hint {
+    color: var(--color-text-tertiary);
+    font-size: 0.8rem;
+    font-style: italic;
+    text-align: center;
+    padding: 20px 0;
+    margin: 0;
+}
+
+.node-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--glass-border-light);
+}
+
+.node-detail-row:last-child {
+    border-bottom: none;
+}
+
+.node-detail-row .label {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+}
+
+.node-detail-row .value {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    font-family: var(--font-mono);
+}
+
+.node-detail-row .value.correct {
+    color: var(--color-success);
+}
+
+.node-detail-row .value.incorrect {
+    color: var(--color-error);
+}
+
+/* Training Metrics */
+.gnn-metrics {
+    padding: 4px 0;
+}
+
+.metric-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--glass-border-light);
+}
+
+.metric-row:last-child {
+    border-bottom: none;
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+}
+
+.metric-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    font-family: var(--font-mono);
+}
+
+/* ==================== Sidebar Common Styles ==================== */
+
+.gnn-sidebar .sidebar__header,
+.gnn-details .sidebar__header {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.gnn-sidebar .sidebar__header h3,
+.gnn-details .sidebar__header h3 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.gnn-sidebar .sidebar__content,
+.gnn-details .sidebar__content {
+    padding: 12px 14px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* ==================== Responsive ==================== */
+
+@media (max-width: 1200px) {
+    .gnn-main {
+        grid-template-columns: 240px 1fr 240px;
+        gap: 12px;
+        padding: 12px;
+    }
+}
+
+@media (max-width: 992px) {
+    .gnn-main {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr auto;
+        height: auto;
+    }
+
+    .gnn-sidebar {
+        max-height: 300px;
+    }
+
+    .gnn-visualization {
+        min-height: 400px;
+    }
+
+    .gnn-details {
+        max-height: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .gnn-controls {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .gnn-graph-container {
+        min-height: 200px;
+    }
+
+    .gnn-message-panel {
+        min-height: 250px;
+    }
+
+    .gnn-embedding-panel {
+        min-height: 150px;
+    }
+}
+
+/* ==================== Canvas Styling ==================== */
+
+#gnn-message-canvas,
+#gnn-embedding-canvas {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* ==================== Animations ==================== */
+
+@keyframes gnn-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+@keyframes gnn-message-flow {
+    0% { stroke-dashoffset: 20; }
+    100% { stroke-dashoffset: 0; }
+}
+
+.gnn-training .metric-value {
+    animation: gnn-pulse 0.5s ease-in-out infinite;
+}
+
+/* ==================== Dark Theme Adjustments ==================== */
+
+.gnn-main canvas {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Scrollbar styling for details panel */
+.gnn-details .sidebar__content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.gnn-details .sidebar__content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.gnn-details .sidebar__content::-webkit-scrollbar-thumb {
+    background: var(--glass-border);
+    border-radius: 3px;
+}
+
+.gnn-details .sidebar__content::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary-light);
+}

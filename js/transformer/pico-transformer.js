@@ -13,13 +13,40 @@
  * Based on the ideas from picoGPT and "Attention Is All You Need"
  */
 
+// Demo vocabulary for visualization (common words)
+export const DEMO_VOCAB = [
+    'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
+    'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should',
+    'may', 'might', 'must', 'shall', 'can', 'need', 'dare', 'ought', 'used', 'to',
+    'and', 'but', 'or', 'nor', 'for', 'yet', 'so', 'as', 'if', 'then',
+    'I', 'you', 'he', 'she', 'it', 'we', 'they', 'me', 'him', 'her',
+    'quick', 'brown', 'fox', 'jumps', 'over', 'lazy', 'dog', 'cat', 'bird', 'fish',
+    'runs', 'walks', 'sits', 'stands', 'falls', 'flies', 'swims', 'eats', 'sleeps', 'plays',
+    'big', 'small', 'fast', 'slow', 'hot', 'cold', 'new', 'old', 'good', 'bad',
+    'hello', 'world', 'how', 'what', 'when', 'where', 'why', 'who', 'which', 'that',
+    'this', 'these', 'those', 'here', 'there', 'now', 'then', 'today', 'tomorrow', 'yesterday',
+    'data', 'visualization', 'empowers', 'users', 'understand', 'complex', 'patterns', 'information', 'analysis', 'insights',
+    'machine', 'learning', 'neural', 'network', 'deep', 'artificial', 'intelligence', 'model', 'training', 'prediction',
+    'transformer', 'attention', 'embedding', 'token', 'layer', 'output', 'input', 'hidden', 'weight', 'bias',
+    'sat', 'on', 'mat', 'warm', 'sunny', 'day', 'night', 'morning', 'evening', 'afternoon',
+    ' ', '.', ',', '!', '?', ':', ';', '-', "'", '"',
+    'The', 'A', 'An', 'It', 'He', 'She', 'We', 'They', 'This', 'That'
+];
+
+// Create reverse lookup
+export const VOCAB_TO_ID = {};
+DEMO_VOCAB.forEach((word, idx) => {
+    VOCAB_TO_ID[word] = idx;
+    VOCAB_TO_ID[word.toLowerCase()] = idx;
+});
+
 export class PicoTransformer {
     /**
      * Initialize a minimal transformer
      * @param {Object} config - Configuration
      */
     constructor(config = {}) {
-        this.vocabSize = config.vocabSize || 50257;     // GPT-2 vocab size
+        this.vocabSize = config.vocabSize || DEMO_VOCAB.length;
         this.contextLength = config.contextLength || 128;
         this.embeddingDim = config.embeddingDim || 64;  // Small for demo
         this.numHeads = config.numHeads || 4;
@@ -36,12 +63,58 @@ export class PicoTransformer {
     }
 
     /**
+     * Tokenize text into token IDs using demo vocabulary
+     */
+    tokenize(text) {
+        const tokens = [];
+        const tokenIds = [];
+
+        // Simple word-based tokenization
+        const words = text.split(/(\s+)/);
+
+        for (const word of words) {
+            if (!word) continue;
+
+            // Check if word is in vocabulary
+            const id = VOCAB_TO_ID[word] ?? VOCAB_TO_ID[word.toLowerCase()];
+            if (id !== undefined) {
+                tokens.push(word);
+                tokenIds.push(id);
+            } else {
+                // Unknown word - split into characters or use UNK
+                tokens.push(word);
+                tokenIds.push(Math.abs(this.hashString(word)) % this.vocabSize);
+            }
+        }
+
+        return { tokens, tokenIds };
+    }
+
+    /**
+     * Convert token IDs back to text
+     */
+    detokenize(tokenIds) {
+        return tokenIds.map(id => DEMO_VOCAB[id] || `[${id}]`).join('');
+    }
+
+    /**
+     * Simple string hash for unknown words
+     */
+    hashString(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            hash = ((hash << 5) - hash) + str.charCodeAt(i);
+            hash = hash & hash;
+        }
+        return hash;
+    }
+
+    /**
      * Initialize random weights for demonstration
      */
     initializeWeights() {
         // Token embeddings: [vocabSize, embeddingDim]
-        // For demo, we use a small subset
-        this.tokenEmbeddings = this.randomMatrix(1000, this.embeddingDim, 0.02);
+        this.tokenEmbeddings = this.randomMatrix(this.vocabSize, this.embeddingDim, 0.02);
 
         // Positional embeddings: [contextLength, embeddingDim]
         this.positionEmbeddings = this.createPositionalEncoding(
@@ -55,8 +128,8 @@ export class PicoTransformer {
             this.layers.push(this.createLayer());
         }
 
-        // Output projection
-        this.outputProjection = this.randomMatrix(this.embeddingDim, 1000, 0.02);
+        // Output projection to vocab size
+        this.outputProjection = this.randomMatrix(this.embeddingDim, this.vocabSize, 0.02);
     }
 
     /**
@@ -111,93 +184,186 @@ export class PicoTransformer {
     /**
      * Forward pass through the transformer
      * @param {number[]} tokenIds - Array of token IDs
-     * @returns {Object} - Output logits and intermediate states
+     * @param {number} temperature - Temperature for softmax (default 1.0)
+     * @returns {Object} - Output logits and comprehensive intermediate states
      */
-    forward(tokenIds) {
+    forward(tokenIds, temperature = 1.0) {
         const seqLen = tokenIds.length;
-        const intermediateStates = {
+
+        // Comprehensive state for visualization
+        const state = {
+            // Input
+            tokenIds: [...tokenIds],
+            tokens: tokenIds.map(id => DEMO_VOCAB[id] || `[${id}]`),
+
+            // Embeddings
+            tokenEmbeddings: null,      // [seqLen, embDim]
+            posEmbeddings: null,        // [seqLen, embDim]
+            combinedEmbeddings: null,   // [seqLen, embDim]
+
+            // Per-layer detailed states
+            layers: [],
+
+            // Final output
+            logits: null,               // [vocabSize]
+            probabilities: null,        // [vocabSize]
+            topK: [],                   // Top predictions with words
+
+            // Legacy compatibility
             embeddings: null,
             posEmbeddings: null,
-            combinedEmbeddings: null,
             layerOutputs: [],
-            attentionWeights: [],
-            logits: null
+            attentionWeights: []
         };
 
         // Step 1: Token Embeddings
-        // Look up embedding vector for each token
         let x = this.getTokenEmbeddings(tokenIds);
-        intermediateStates.embeddings = this.copyArray(x, seqLen, this.embeddingDim);
+        state.tokenEmbeddings = this.copyArray(x, seqLen, this.embeddingDim);
+        state.embeddings = state.tokenEmbeddings; // Legacy
 
-        // Step 2: Add Positional Embeddings
-        // Each position gets a unique encoding so the model knows word order
+        // Step 2: Positional Embeddings
         const posEmb = this.getPositionalEmbeddings(seqLen);
-        intermediateStates.posEmbeddings = this.copyArray(posEmb, seqLen, this.embeddingDim);
+        state.posEmbeddings = this.copyArray(posEmb, seqLen, this.embeddingDim);
 
+        // Step 3: Combined Embeddings
         x = this.addArrays(x, posEmb, seqLen * this.embeddingDim);
-        intermediateStates.combinedEmbeddings = this.copyArray(x, seqLen, this.embeddingDim);
+        state.combinedEmbeddings = this.copyArray(x, seqLen, this.embeddingDim);
 
         if (this.onEmbedding) {
-            this.onEmbedding(intermediateStates);
+            this.onEmbedding(state);
         }
 
-        // Step 3: Transformer Layers
+        // Step 4: Transformer Layers
         for (let layerIdx = 0; layerIdx < this.layers.length; layerIdx++) {
             const layer = this.layers[layerIdx];
-            const layerState = {};
 
-            // 3a: Layer Norm 1
+            // Layer state with full details
+            const layerState = {
+                layerIdx,
+                // Q, K, V matrices
+                Q: null,
+                K: null,
+                V: null,
+                // Attention
+                attentionScores: [],    // Pre-softmax [numHeads, seqLen, seqLen]
+                attentionWeights: [],   // Post-softmax [numHeads, seqLen, seqLen]
+                attentionOutput: null,  // [seqLen, embDim]
+                // FFN
+                ffnInput: null,
+                ffnHidden: null,        // [seqLen, ffnDim]
+                ffnOutput: null,        // [seqLen, embDim]
+                // Layer output
+                output: null            // [seqLen, embDim]
+            };
+
+            // Layer Norm 1
             const normed1 = this.layerNorm(x, seqLen, layer.ln1);
 
-            // 3b: Multi-Head Self-Attention
-            const { output: attnOut, weights } = this.multiHeadAttention(
+            // Multi-Head Self-Attention with full state capture
+            const attnResult = this.multiHeadAttentionFull(
                 normed1, seqLen, layer.attention
             );
-            layerState.attentionWeights = weights;
-            intermediateStates.attentionWeights.push(weights);
+
+            layerState.Q = attnResult.Q;
+            layerState.K = attnResult.K;
+            layerState.V = attnResult.V;
+            layerState.attentionScores = attnResult.scores;
+            layerState.attentionWeights = attnResult.weights;
+            layerState.attentionOutput = this.copyArray(attnResult.output, seqLen, this.embeddingDim);
+
+            // Legacy compatibility
+            state.attentionWeights.push(attnResult.weights);
 
             if (this.onAttention) {
-                this.onAttention(layerIdx, weights, tokenIds);
+                this.onAttention(layerIdx, attnResult.weights, tokenIds);
             }
 
-            // 3c: Residual connection
-            x = this.addArrays(x, attnOut, seqLen * this.embeddingDim);
+            // Residual connection after attention
+            x = this.addArrays(x, attnResult.output, seqLen * this.embeddingDim);
 
-            // 3d: Layer Norm 2
+            // Layer Norm 2
             const normed2 = this.layerNorm(x, seqLen, layer.ln2);
+            layerState.ffnInput = this.copyArray(normed2, seqLen, this.embeddingDim);
 
-            // 3e: Feed-Forward Network
-            const ffnOut = this.feedForward(normed2, seqLen, layer.ffn);
+            // Feed-Forward Network with hidden state capture
+            const ffnResult = this.feedForwardFull(normed2, seqLen, layer.ffn);
+            layerState.ffnHidden = ffnResult.hidden;
+            layerState.ffnOutput = this.copyArray(ffnResult.output, seqLen, this.embeddingDim);
 
             if (this.onFFN) {
-                this.onFFN(layerIdx, ffnOut);
+                this.onFFN(layerIdx, ffnResult.output);
             }
 
-            // 3f: Residual connection
-            x = this.addArrays(x, ffnOut, seqLen * this.embeddingDim);
-
+            // Residual connection after FFN
+            x = this.addArrays(x, ffnResult.output, seqLen * this.embeddingDim);
             layerState.output = this.copyArray(x, seqLen, this.embeddingDim);
-            intermediateStates.layerOutputs.push(layerState);
+
+            state.layers.push(layerState);
+            state.layerOutputs.push(layerState); // Legacy
         }
 
-        // Step 4: Output Projection (only last token for generation)
+        // Step 5: Output Projection
         const lastTokenEmb = x.slice((seqLen - 1) * this.embeddingDim, seqLen * this.embeddingDim);
-        const logits = this.matmul1D(lastTokenEmb, this.outputProjection, this.embeddingDim, 1000);
-        intermediateStates.logits = logits;
+        const logits = this.matmul1D(lastTokenEmb, this.outputProjection, this.embeddingDim, this.vocabSize);
+        state.logits = Array.from(logits);
 
-        return intermediateStates;
+        // Step 6: Softmax with temperature
+        const probs = this.softmaxWithTemperature(logits, temperature);
+        state.probabilities = Array.from(probs);
+
+        // Step 7: Top-K predictions
+        state.topK = this.getTopK(probs, 10);
+
+        return state;
     }
 
     /**
-     * Multi-Head Self-Attention
-     *
-     * This is the core of the transformer:
-     * 1. Project input to Q, K, V
-     * 2. Split into multiple heads
-     * 3. Compute attention: softmax(QK^T / sqrt(d_k)) * V
-     * 4. Concatenate heads and project
+     * Get top-K predictions from probability distribution
      */
-    multiHeadAttention(x, seqLen, weights) {
+    getTopK(probs, k = 5) {
+        const indexed = Array.from(probs).map((p, i) => ({ id: i, prob: p }));
+        indexed.sort((a, b) => b.prob - a.prob);
+
+        return indexed.slice(0, k).map(item => ({
+            id: item.id,
+            token: DEMO_VOCAB[item.id] || `[${item.id}]`,
+            probability: item.prob,
+            percentage: (item.prob * 100).toFixed(1) + '%'
+        }));
+    }
+
+    /**
+     * Softmax with temperature
+     */
+    softmaxWithTemperature(logits, temperature = 1.0) {
+        const scaled = new Float32Array(logits.length);
+        for (let i = 0; i < logits.length; i++) {
+            scaled[i] = logits[i] / temperature;
+        }
+
+        let max = -Infinity;
+        for (let i = 0; i < scaled.length; i++) {
+            if (scaled[i] > max) max = scaled[i];
+        }
+
+        let sum = 0;
+        const probs = new Float32Array(scaled.length);
+        for (let i = 0; i < scaled.length; i++) {
+            probs[i] = Math.exp(scaled[i] - max);
+            sum += probs[i];
+        }
+
+        for (let i = 0; i < probs.length; i++) {
+            probs[i] /= sum;
+        }
+
+        return probs;
+    }
+
+    /**
+     * Multi-Head Self-Attention with full state capture for visualization
+     */
+    multiHeadAttentionFull(x, seqLen, weights) {
         const headDim = this.embeddingDim / this.numHeads;
 
         // Project to Q, K, V
@@ -205,9 +371,15 @@ export class PicoTransformer {
         const K = this.matmul2D(x, weights.Wk, seqLen, this.embeddingDim, this.embeddingDim);
         const V = this.matmul2D(x, weights.Wv, seqLen, this.embeddingDim, this.embeddingDim);
 
+        // Capture Q, K, V for visualization
+        const QCopy = this.copyArray(Q, seqLen, this.embeddingDim);
+        const KCopy = this.copyArray(K, seqLen, this.embeddingDim);
+        const VCopy = this.copyArray(V, seqLen, this.embeddingDim);
+
         // Split into heads and compute attention for each
         const allHeadOutputs = new Float32Array(seqLen * this.embeddingDim);
-        const allWeights = [];
+        const allScores = [];  // Pre-softmax
+        const allWeights = []; // Post-softmax
 
         for (let h = 0; h < this.numHeads; h++) {
             // Extract head slice [seqLen, headDim]
@@ -229,6 +401,10 @@ export class PicoTransformer {
                 }
             }
 
+            // Store pre-softmax scores (before masking for visualization)
+            const preMaskScores = new Float32Array(scores);
+            allScores.push(this.copyArray(preMaskScores, seqLen, seqLen));
+
             // Apply causal mask (can only attend to previous positions)
             for (let i = 0; i < seqLen; i++) {
                 for (let j = i + 1; j < seqLen; j++) {
@@ -238,7 +414,7 @@ export class PicoTransformer {
 
             // Softmax
             const attnWeights = this.softmax2D(scores, seqLen, seqLen);
-            allWeights.push(new Float32Array(attnWeights));
+            allWeights.push(this.copyArray(attnWeights, seqLen, seqLen));
 
             // Apply attention to values: weights @ V
             const headOut = new Float32Array(seqLen * headDim);
@@ -263,14 +439,39 @@ export class PicoTransformer {
         // Output projection
         const output = this.matmul2D(allHeadOutputs, weights.Wo, seqLen, this.embeddingDim, this.embeddingDim);
 
-        return { output, weights: allWeights };
+        return {
+            Q: QCopy,
+            K: KCopy,
+            V: VCopy,
+            scores: allScores,
+            weights: allWeights,
+            output
+        };
     }
 
     /**
-     * Feed-Forward Network
+     * Multi-Head Self-Attention (legacy wrapper)
+     */
+    multiHeadAttention(x, seqLen, weights) {
+        const result = this.multiHeadAttentionFull(x, seqLen, weights);
+        // Convert weights back to Float32Array format for legacy code
+        const flatWeights = result.weights.map(w => {
+            const flat = new Float32Array(w.length * w[0].length);
+            for (let i = 0; i < w.length; i++) {
+                for (let j = 0; j < w[i].length; j++) {
+                    flat[i * w[i].length + j] = w[i][j];
+                }
+            }
+            return flat;
+        });
+        return { output: result.output, weights: flatWeights };
+    }
+
+    /**
+     * Feed-Forward Network with full state capture
      * FFN(x) = GELU(xW1 + b1)W2 + b2
      */
-    feedForward(x, seqLen, weights) {
+    feedForwardFull(x, seqLen, weights) {
         // First linear layer + GELU
         const hidden = new Float32Array(seqLen * this.ffnDim);
 
@@ -297,7 +498,17 @@ export class PicoTransformer {
             }
         }
 
-        return output;
+        return {
+            hidden: this.copyArray(hidden, seqLen, this.ffnDim),
+            output
+        };
+    }
+
+    /**
+     * Feed-Forward Network (legacy wrapper)
+     */
+    feedForward(x, seqLen, weights) {
+        return this.feedForwardFull(x, seqLen, weights).output;
     }
 
     /**

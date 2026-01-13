@@ -6,6 +6,7 @@
 import { TransformerModel } from './transformer-model.js';
 import { TransformerViz } from './transformer-viz.js';
 import { TransformerExplainer } from './transformer-explainer.js';
+import { transformerExplainerFull } from './transformer-explainer-full.js';
 
 export class TransformerApp {
     constructor() {
@@ -447,14 +448,11 @@ export class TransformerApp {
     }
 
     /**
-     * Open explainer modal
+     * Open explainer - uses full interactive explainer
      */
     openExplainer() {
-        if (this.elements.explainerModal) {
-            this.elements.explainerModal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            this.explainer?.init();
-        }
+        // Open the full interactive explainer (PicoGPT-based)
+        transformerExplainerFull.open();
     }
 
     /**
