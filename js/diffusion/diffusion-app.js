@@ -285,9 +285,12 @@ export class DiffusionApp {
     /**
      * Open explainer modal
      */
-    openExplainer() {
-        // TODO: Implement in Phase 4
-        console.log('[Diffusion] Open explainer');
+    async openExplainer() {
+        const { diffusionExplainer } = await import('./diffusion-explainer.js');
+        if (!diffusionExplainer.modal) {
+            diffusionExplainer.init();
+        }
+        diffusionExplainer.open();
     }
 
     /**

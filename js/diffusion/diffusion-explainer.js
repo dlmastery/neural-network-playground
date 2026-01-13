@@ -1,0 +1,219 @@
+/**
+ * Diffusion Explainer Modal
+ * Handles the 7-tab educational explainer for diffusion concepts
+ */
+
+export class DiffusionExplainer {
+    constructor() {
+        this.modal = null;
+        this.activeTab = 'd-overview';
+        this.animationFrame = null;
+        this.isOpen = false;
+    }
+
+    /**
+     * Initialize the explainer
+     */
+    init() {
+        this.modal = document.getElementById('diffusion-explainer-modal');
+
+        // Tab buttons
+        const tabButtons = this.modal?.querySelectorAll('.explainer-tab-btn');
+        tabButtons?.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.dataset.tab;
+                this.switchTab(tabId);
+            });
+        });
+
+        // Close button
+        const closeBtn = document.getElementById('diffusion-explainer-close-btn');
+        closeBtn?.addEventListener('click', () => this.close());
+
+        // Click outside to close
+        this.modal?.addEventListener('click', (e) => {
+            if (e.target === this.modal) {
+                this.close();
+            }
+        });
+
+        // ESC key to close
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.isOpen) {
+                this.close();
+            }
+        });
+    }
+
+    /**
+     * Open the explainer modal
+     */
+    open() {
+        if (!this.modal) this.init();
+
+        this.modal?.classList.add('active');
+        this.isOpen = true;
+
+        // Start animation for active tab
+        this.startTabAnimation(this.activeTab);
+    }
+
+    /**
+     * Close the explainer modal
+     */
+    close() {
+        this.modal?.classList.remove('active');
+        this.isOpen = false;
+        this.stopAnimation();
+    }
+
+    /**
+     * Switch to a different tab
+     */
+    switchTab(tabId) {
+        // Update active button
+        const buttons = this.modal?.querySelectorAll('.explainer-tab-btn');
+        buttons?.forEach(btn => {
+            btn.classList.toggle('explainer-tab-btn--active', btn.dataset.tab === tabId);
+        });
+
+        // Update active panel
+        const panels = this.modal?.querySelectorAll('.explainer-tab-panel');
+        panels?.forEach(panel => {
+            const panelId = tabId + '-panel';
+            panel.classList.toggle('explainer-tab-panel--active', panel.id === panelId);
+        });
+
+        this.activeTab = tabId;
+        this.stopAnimation();
+        this.startTabAnimation(tabId);
+    }
+
+    /**
+     * Start animation for the active tab
+     */
+    startTabAnimation(tabId) {
+        switch (tabId) {
+            case 'd-overview':
+                this.drawOverviewDiagram();
+                break;
+            // Other tabs will be added in subsequent tasks
+        }
+    }
+
+    /**
+     * Stop any running animation
+     */
+    stopAnimation() {
+        if (this.animationFrame) {
+            cancelAnimationFrame(this.animationFrame);
+            this.animationFrame = null;
+        }
+    }
+
+    /**
+     * Draw the overview diagram showing forward and reverse process
+     */
+    drawOverviewDiagram() {
+        const canvas = document.getElementById('diffusion-overview-canvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+
+        let time = 0;
+        const totalSteps = 5;
+
+        const animate = () => {
+            ctx.fillStyle = 'rgba(15, 23, 42, 1)';
+            ctx.fillRect(0, 0, width, height);
+
+            const step = Math.floor((time % 300) / 60); // 0-4 steps, cycling
+            const progress = (time % 60) / 60; // 0-1 within each step
+
+            // Draw title
+            ctx.fillStyle = '#f8fafc';
+            ctx.font = 'bold 14px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Forward Process', width * 0.25, 20);
+            ctx.fillText('Reverse Process', width * 0.75, 20);
+
+            // Draw arrows
+            ctx.fillStyle = '#ec4899';
+            ctx.font = '20px sans-serif';
+            ctx.fillText('→', width * 0.25, height / 2);
+            ctx.fillText('←', width * 0.75, height / 2);
+
+            // Draw digit boxes for forward process (left side)
+            const boxSize = 32;
+            const startX = 20;
+            const y = height / 2 - boxSize / 2 + 10;
+
+            for (let i = 0; i <= totalSteps; i++) {
+                const x = startX + i * (boxSize + 8);
+                const noiseLevel = i / totalSteps;
+
+                this.drawNoisyDigit(ctx, x, y, boxSize, noiseLevel, '3');
+            }
+
+            // Draw digit boxes for reverse process (right side)
+            const rightStartX = width / 2 + 20;
+
+            for (let i = 0; i <= totalSteps; i++) {
+                const x = rightStartX + i * (boxSize + 8);
+                const noiseLevel = 1 - (i / totalSteps); // Reverse: starts noisy, ends clean
+
+                this.drawNoisyDigit(ctx, x, y, boxSize, noiseLevel, '3');
+            }
+
+            // Draw step indicators
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '10px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('t=0', startX + boxSize/2, y + boxSize + 15);
+            ctx.fillText('t=T', startX + totalSteps * (boxSize + 8) + boxSize/2, y + boxSize + 15);
+            ctx.fillText('t=T', rightStartX + boxSize/2, y + boxSize + 15);
+            ctx.fillText('t=0', rightStartX + totalSteps * (boxSize + 8) + boxSize/2, y + boxSize + 15);
+
+            time++;
+            this.animationFrame = requestAnimationFrame(animate);
+        };
+
+        animate();
+    }
+
+    /**
+     * Draw a digit with noise overlay
+     */
+    drawNoisyDigit(ctx, x, y, size, noiseLevel, digit) {
+        // Background
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.fillRect(x, y, size, size);
+
+        // Draw simple digit shape (simplified "3")
+        ctx.fillStyle = `rgba(248, 250, 252, ${1 - noiseLevel * 0.8})`;
+        ctx.font = `bold ${size * 0.7}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(digit, x + size/2, y + size/2);
+
+        // Add noise dots
+        const numDots = Math.floor(noiseLevel * 50);
+        for (let i = 0; i < numDots; i++) {
+            const dotX = x + Math.random() * size;
+            const dotY = y + Math.random() * size;
+            const brightness = Math.random() * 255;
+            ctx.fillStyle = `rgba(${brightness}, ${brightness}, ${brightness}, ${noiseLevel * 0.5})`;
+            ctx.fillRect(dotX, dotY, 2, 2);
+        }
+
+        // Border
+        ctx.strokeStyle = 'rgba(236, 72, 153, 0.5)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x, y, size, size);
+    }
+}
+
+// Export singleton
+export const diffusionExplainer = new DiffusionExplainer();
