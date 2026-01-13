@@ -292,3 +292,252 @@
         max-height: 200px;
     }
 }
+
+/* ==========================================
+   DIFFUSION EXPLAINER STYLES
+   ========================================== */
+
+/* Modal width override */
+#diffusion-explainer-modal .explainer-modal__content {
+    max-width: 950px;
+}
+
+/* Math formulas */
+.math-formula {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    overflow-x: auto;
+}
+
+.math-formula code {
+    color: var(--diffusion-accent-light);
+}
+
+/* Key insight callout */
+.key-insight {
+    background: rgba(236, 72, 153, 0.1);
+    border-left: 3px solid var(--diffusion-accent);
+    padding: 0.75rem 1rem;
+    margin: 1rem 0;
+    border-radius: 0 8px 8px 0;
+}
+
+/* Forward Process Demo */
+.forward-process-demo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+.forward-process-demo canvas {
+    border-radius: 4px;
+}
+
+.forward-slider-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 400px;
+}
+
+.forward-slider-container label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.forward-slider-container input[type="range"] {
+    flex: 1;
+    accent-color: var(--diffusion-accent);
+}
+
+.forward-slider-container span {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    min-width: 40px;
+}
+
+/* Reverse Process Demo */
+.reverse-process-demo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+.reverse-process-demo canvas {
+    border-radius: 4px;
+}
+
+/* U-Net Diagram */
+.unet-diagram {
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+.unet-diagram canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+.unet-legend {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+}
+
+/* Noise Schedules Demo */
+.schedules-demo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+.schedules-demo canvas {
+    border-radius: 4px;
+}
+
+.schedule-toggle {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.schedule-btn {
+    transition: all 0.2s ease;
+}
+
+.schedule-btn--active {
+    background: var(--diffusion-accent) !important;
+    border-color: var(--diffusion-accent) !important;
+}
+
+/* Sampling Race */
+.sampling-race {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+}
+
+.sampling-track {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+.sampling-track h4 {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.sampling-track canvas {
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.sampling-time {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--diffusion-accent-light);
+}
+
+/* Guidance Demo */
+.guidance-demo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+.guidance-demo canvas {
+    border-radius: 4px;
+}
+
+.guidance-slider-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 400px;
+}
+
+.guidance-slider-container label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.guidance-slider-container input[type="range"] {
+    flex: 1;
+    accent-color: var(--diffusion-accent);
+}
+
+.guidance-slider-container span {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    min-width: 30px;
+}
+
+/* Diffusion Diagram (overview) */
+.diffusion-diagram {
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+.diffusion-diagram canvas {
+    max-width: 100%;
+    height: auto;
+}
