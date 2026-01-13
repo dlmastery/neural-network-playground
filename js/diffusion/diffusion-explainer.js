@@ -43,6 +43,25 @@ export class DiffusionExplainer {
                 this.close();
             }
         });
+
+        // Initialize tab-specific controls
+        this.initForwardProcess();
+    }
+
+    /**
+     * Initialize forward process tab controls
+     */
+    initForwardProcess() {
+        const slider = document.getElementById('forward-noise-slider');
+        const valueDisplay = document.getElementById('forward-noise-value');
+
+        slider?.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            if (valueDisplay) {
+                valueDisplay.textContent = `t=${value}`;
+            }
+            this.drawForwardProcess(value);
+        });
     }
 
     /**
@@ -97,6 +116,9 @@ export class DiffusionExplainer {
             case 'd-overview':
                 this.drawOverviewDiagram();
                 break;
+            case 'd-forward':
+                this.drawForwardProcess(0);
+                break;
             // Other tabs will be added in subsequent tasks
         }
     }
@@ -109,6 +131,93 @@ export class DiffusionExplainer {
             cancelAnimationFrame(this.animationFrame);
             this.animationFrame = null;
         }
+    }
+
+    /**
+     * Draw the forward process visualization
+     * @param {number} currentStep - Current noise level (0-100)
+     */
+    drawForwardProcess(currentStep = 0) {
+        const canvas = document.getElementById('forward-process-canvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+
+        // Clear
+        ctx.fillStyle = 'rgba(15, 23, 42, 1)';
+        ctx.fillRect(0, 0, width, height);
+
+        // Draw sequence of noised digits
+        const numSteps = 10;
+        const boxSize = 36;
+        const spacing = (width - numSteps * boxSize) / (numSteps + 1);
+        const y = 20;
+
+        for (let i = 0; i < numSteps; i++) {
+            const x = spacing + i * (boxSize + spacing);
+            const stepNoise = i / (numSteps - 1); // 0 to 1
+            const isHighlighted = Math.abs((currentStep / 100) - stepNoise) < 0.1;
+
+            // Draw digit with noise
+            this.drawNoisyDigit(ctx, x, y, boxSize, stepNoise, '7');
+
+            // Highlight current step
+            if (isHighlighted) {
+                ctx.strokeStyle = '#ec4899';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(x - 2, y - 2, boxSize + 4, boxSize + 4);
+            }
+        }
+
+        // Draw beta schedule graph below
+        const graphY = y + boxSize + 20;
+        const graphHeight = height - graphY - 10;
+        const graphWidth = width - 40;
+        const graphX = 20;
+
+        // Graph background
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.fillRect(graphX, graphY, graphWidth, graphHeight);
+
+        // Draw beta curve (linear schedule)
+        ctx.strokeStyle = '#ec4899';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        const betaStart = 0.0001;
+        const betaEnd = 0.02;
+
+        for (let i = 0; i <= graphWidth; i++) {
+            const t = i / graphWidth;
+            const beta = betaStart + t * (betaEnd - betaStart);
+            const normalizedBeta = (beta - betaStart) / (betaEnd - betaStart);
+            const plotY = graphY + graphHeight - normalizedBeta * graphHeight;
+
+            if (i === 0) {
+                ctx.moveTo(graphX + i, plotY);
+            } else {
+                ctx.lineTo(graphX + i, plotY);
+            }
+        }
+        ctx.stroke();
+
+        // Draw current position marker
+        const markerX = graphX + (currentStep / 100) * graphWidth;
+        ctx.fillStyle = '#ec4899';
+        ctx.beginPath();
+        ctx.arc(markerX, graphY + graphHeight - (currentStep / 100) * graphHeight, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Labels
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '10px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('β_t', graphX + 5, graphY + 12);
+        ctx.textAlign = 'center';
+        ctx.fillText('0', graphX, graphY + graphHeight + 12);
+        ctx.fillText('T', graphX + graphWidth, graphY + graphHeight + 12);
     }
 
     /**
