@@ -3,6 +3,8 @@
  * Implements DDPM/DDIM sampling with WebGPU acceleration
  */
 
+import { unet } from './unet.js';
+
 export class DiffusionModel {
     constructor() {
         this.isLoaded = false;
@@ -91,44 +93,121 @@ export class DiffusionModel {
 
     /**
      * Generate samples using DDPM
-     * @param {number} numSamples - Number of samples to generate
-     * @param {number} numSteps - Number of denoising steps
-     * @param {number} classLabel - Class label (-1 for unconditional)
-     * @param {number} guidanceScale - Classifier-free guidance scale
-     * @param {Function} onProgress - Progress callback
-     * @returns {Float32Array[]} Array of generated images
      */
     async sample(numSamples, numSteps, classLabel = -1, guidanceScale = 1.0, onProgress = null) {
-        const { imageSize, channels } = this.config;
+        const { imageSize, channels, numTimesteps } = this.config;
         const imagePixels = imageSize * imageSize * channels;
 
+        // Ensure U-Net is initialized
+        if (!unet.weights) {
+            unet.initRandomWeights();
+        }
+
         // Start from pure noise
-        const samples = new Array(numSamples);
+        const samples = [];
+        const histories = []; // Store intermediate steps for visualization
+
         for (let i = 0; i < numSamples; i++) {
-            samples[i] = this.randomNormal(imagePixels);
+            samples.push(this.randomNormal(imagePixels));
+            histories.push([new Float32Array(samples[i])]); // Save initial noise
         }
 
         // Denoising loop
-        const stepSize = Math.floor(this.config.numTimesteps / numSteps);
+        const stepIndices = this.getStepIndices(numSteps);
 
-        for (let step = 0; step < numSteps; step++) {
-            const t = this.config.numTimesteps - 1 - step * stepSize;
+        for (let stepIdx = 0; stepIdx < stepIndices.length; stepIdx++) {
+            const t = stepIndices[stepIdx];
+            const tNext = stepIdx < stepIndices.length - 1 ? stepIndices[stepIdx + 1] : 0;
 
-            // TODO: Implement actual denoising step
-            // For now, just gradually reduce noise magnitude
-            const noiseScale = Math.sqrt(this.alphasCumprod[t]);
+            // Get time embedding
+            const timeEmb = this.getTimeEmbedding(t);
+
             for (let i = 0; i < numSamples; i++) {
-                for (let j = 0; j < imagePixels; j++) {
-                    samples[i][j] *= 0.95;
+                // Predict noise
+                let predictedNoise;
+
+                if (guidanceScale > 1.0 && classLabel >= 0) {
+                    // Classifier-free guidance
+                    const condNoise = unet.forward(samples[i], timeEmb, classLabel);
+                    const uncondNoise = unet.forward(samples[i], timeEmb, -1);
+
+                    predictedNoise = new Float32Array(imagePixels);
+                    for (let j = 0; j < imagePixels; j++) {
+                        predictedNoise[j] = uncondNoise[j] + guidanceScale * (condNoise[j] - uncondNoise[j]);
+                    }
+                } else {
+                    predictedNoise = unet.forward(samples[i], timeEmb, classLabel);
+                }
+
+                // DDPM step
+                samples[i] = this.ddpmStep(samples[i], predictedNoise, t, tNext);
+
+                // Save to history (every few steps)
+                if (stepIdx % Math.max(1, Math.floor(numSteps / 10)) === 0) {
+                    histories[i].push(new Float32Array(samples[i]));
                 }
             }
 
             if (onProgress) {
-                onProgress(step + 1, numSteps);
+                onProgress(stepIdx + 1, numSteps);
+            }
+
+            // Yield to UI
+            await new Promise(r => setTimeout(r, 0));
+        }
+
+        // Save final result to histories
+        for (let i = 0; i < numSamples; i++) {
+            histories[i].push(new Float32Array(samples[i]));
+        }
+
+        return { samples, histories };
+    }
+
+    /**
+     * Get step indices for sampling
+     */
+    getStepIndices(numSteps) {
+        const indices = [];
+        const stepSize = Math.floor(this.config.numTimesteps / numSteps);
+
+        for (let i = 0; i < numSteps; i++) {
+            indices.push(this.config.numTimesteps - 1 - i * stepSize);
+        }
+
+        return indices;
+    }
+
+    /**
+     * Single DDPM denoising step
+     */
+    ddpmStep(x, predictedNoise, t, tNext) {
+        const alpha = this.alphas[t];
+        const alphaCumprod = this.alphasCumprod[t];
+        const beta = this.betas[t];
+
+        const sqrtOneMinusAlphaCumprod = Math.sqrt(1 - alphaCumprod);
+
+        const output = new Float32Array(x.length);
+
+        // Mean
+        const coef1 = 1 / Math.sqrt(alpha);
+        const coef2 = beta / sqrtOneMinusAlphaCumprod;
+
+        for (let i = 0; i < x.length; i++) {
+            output[i] = coef1 * (x[i] - coef2 * predictedNoise[i]);
+        }
+
+        // Add noise (except for last step)
+        if (tNext > 0) {
+            const sigma = Math.sqrt(beta);
+            const noise = this.randomNormal(x.length);
+            for (let i = 0; i < x.length; i++) {
+                output[i] += sigma * noise[i];
             }
         }
 
-        return samples;
+        return output;
     }
 
     /**

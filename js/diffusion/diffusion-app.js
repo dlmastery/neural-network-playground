@@ -196,15 +196,43 @@ export class DiffusionApp {
         this.updateStatus('Generating...');
         this.updateProgress(0, 'Starting...');
 
-        // TODO: Implement actual generation in Phase 2
-        // For now, simulate progress
-        for (let i = 0; i <= 100; i += 5) {
-            await new Promise(r => setTimeout(r, 50));
-            this.updateProgress(i, `Step ${Math.floor(i / 5)} / 20`);
+        try {
+            // Import model
+            const { diffusionModel } = await import('./diffusion-model.js');
+
+            // Initialize if needed
+            if (!diffusionModel.alphas) {
+                await diffusionModel.init(this.config.backend);
+            }
+
+            // Generate
+            const numSamples = this.config.gridSize * this.config.gridSize;
+            const result = await diffusionModel.sample(
+                numSamples,
+                this.config.steps,
+                this.config.targetClass,
+                this.config.guidanceScale,
+                (step, total) => {
+                    const percent = (step / total) * 100;
+                    this.updateProgress(percent, `Step ${step}/${total}`);
+                }
+            );
+
+            // Store for timeline
+            this.generationHistory = result.histories;
+
+            // Visualize
+            const { diffusionViz } = await import('./diffusion-viz.js');
+            diffusionViz.drawGrid(result.samples);
+
+            this.updateStatus('Ready');
+            this.updateProgress(100, 'Complete');
+
+        } catch (error) {
+            console.error('[Diffusion] Generation error:', error);
+            this.updateStatus('Error');
         }
 
-        this.updateStatus('Ready');
-        this.updateProgress(100, 'Complete');
         this.isGenerating = false;
     }
 
