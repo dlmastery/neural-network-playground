@@ -166,6 +166,29 @@ export class DiffusionModel {
 
         return { noisy: result, noise };
     }
+
+    /**
+     * Create sinusoidal time embedding
+     * @param {number} timestep - Current timestep
+     * @param {number} dim - Embedding dimension
+     * @returns {Float32Array} Time embedding vector
+     */
+    getTimeEmbedding(timestep, dim = 64) {
+        const halfDim = dim / 2;
+        const embedding = new Float32Array(dim);
+
+        // Sinusoidal embedding formula
+        const logTimescale = Math.log(10000) / (halfDim - 1);
+
+        for (let i = 0; i < halfDim; i++) {
+            const freq = Math.exp(-i * logTimescale);
+            const angle = timestep * freq;
+            embedding[i] = Math.sin(angle);
+            embedding[i + halfDim] = Math.cos(angle);
+        }
+
+        return embedding;
+    }
 }
 
 // Export singleton
