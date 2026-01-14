@@ -866,8 +866,114 @@ class NeuralPlayground {
     }
 }
 
+// Modal Controller for Tutorial and Examples
+class ModalController {
+    constructor() {
+        this.tutorialModal = document.getElementById('tutorial-modal');
+        this.examplesModal = document.getElementById('examples-modal');
+        this.init();
+    }
+
+    init() {
+        // Tutorial button
+        const btnTutorial = document.getElementById('btn-tutorial');
+        if (btnTutorial) {
+            btnTutorial.addEventListener('click', () => this.openTutorial());
+        }
+
+        // Examples button
+        const btnExamples = document.getElementById('btn-examples');
+        if (btnExamples) {
+            btnExamples.addEventListener('click', () => this.openExamples());
+        }
+
+        // Close buttons
+        document.getElementById('tutorial-close-btn')?.addEventListener('click', () => this.closeTutorial());
+        document.getElementById('examples-close-btn')?.addEventListener('click', () => this.closeExamples());
+
+        // Close on backdrop click
+        this.tutorialModal?.addEventListener('click', (e) => {
+            if (e.target === this.tutorialModal) this.closeTutorial();
+        });
+        this.examplesModal?.addEventListener('click', (e) => {
+            if (e.target === this.examplesModal) this.closeExamples();
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (this.tutorialModal?.classList.contains('active')) this.closeTutorial();
+                if (this.examplesModal?.classList.contains('active')) this.closeExamples();
+            }
+        });
+
+        // Setup example loading function
+        window.loadExample = (example) => this.loadExample(example);
+    }
+
+    openTutorial() {
+        this.tutorialModal?.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    closeTutorial() {
+        this.tutorialModal?.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    openExamples() {
+        this.examplesModal?.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    closeExamples() {
+        this.examplesModal?.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    loadExample(example) {
+        this.closeExamples();
+
+        switch (example) {
+            case 'xor':
+                // Switch to MLP tab and load XOR dataset
+                window.tabController.switchTab('mlp');
+                setTimeout(() => {
+                    const xorBtn = document.querySelector('[data-dataset="xor"]');
+                    if (xorBtn) xorBtn.click();
+                }, 100);
+                break;
+
+            case 'spiral':
+                // Switch to MLP tab and load Spiral dataset
+                window.tabController.switchTab('mlp');
+                setTimeout(() => {
+                    const spiralBtn = document.querySelector('[data-dataset="spiral"]');
+                    if (spiralBtn) spiralBtn.click();
+                }, 100);
+                break;
+
+            case 'mnist':
+                // Switch to CNN tab
+                window.tabController.switchTab('cnn');
+                break;
+
+            case 'transformer':
+                // Switch to Transformer tab
+                window.tabController.switchTab('transformer');
+                break;
+
+            case 'diffusion':
+                // Switch to Diffusion tab
+                window.tabController.switchTab('diffusion');
+                break;
+        }
+    }
+}
+
 // Initialize application when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.playground = new NeuralPlayground();
     window.tabController = new TabController();
+    window.modalController = new ModalController();
 });

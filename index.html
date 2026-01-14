@@ -1814,6 +1814,190 @@
         </main>
     </div>
 
+    <!-- Tutorial Modal -->
+    <div class="explainer-modal" id="tutorial-modal">
+        <div class="explainer-modal__content glass-panel" style="max-width: 800px;">
+            <div class="explainer-modal__header">
+                <h2 class="explainer-modal__title">PyTorch Code Reference</h2>
+                <p class="explainer-modal__subtitle">Code snippets for each architecture</p>
+                <button class="explainer-modal__close" id="tutorial-close-btn">&times;</button>
+            </div>
+            <div style="padding: 24px; overflow-y: auto; max-height: calc(90vh - 100px);">
+                <div style="display: grid; gap: 24px;">
+                    <!-- MLP -->
+                    <div class="tutorial-section">
+                        <h3 style="color: var(--accent); font-size: 15px; margin-bottom: 12px;">Neural Net (MLP)</h3>
+                        <pre style="background: #0d1117; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px; overflow-x: auto; font-size: 12px; line-height: 1.5;"><code style="color: #c9d1d9;"><span style="color: #ff7b72;">import</span> torch.nn <span style="color: #ff7b72;">as</span> nn
+
+<span style="color: #ff7b72;">class</span> <span style="color: #ffa657;">MLP</span>(nn.Module):
+    <span style="color: #ff7b72;">def</span> <span style="color: #d2a8ff;">__init__</span>(<span style="color: #79c0ff;">self</span>, input_dim=<span style="color: #a5d6ff;">2</span>, hidden=<span style="color: #a5d6ff;">8</span>):
+        <span style="color: #79c0ff;">super</span>().__init__()
+        <span style="color: #79c0ff;">self</span>.net = nn.Sequential(
+            nn.Linear(input_dim, hidden),
+            nn.Tanh(),
+            nn.Linear(hidden, <span style="color: #a5d6ff;">1</span>),
+            nn.Sigmoid()
+        )
+
+    <span style="color: #ff7b72;">def</span> <span style="color: #d2a8ff;">forward</span>(<span style="color: #79c0ff;">self</span>, x):
+        <span style="color: #ff7b72;">return</span> <span style="color: #79c0ff;">self</span>.net(x)</code></pre>
+                    </div>
+
+                    <!-- CNN -->
+                    <div class="tutorial-section">
+                        <h3 style="color: var(--success); font-size: 15px; margin-bottom: 12px;">CNN (Convolutional)</h3>
+                        <pre style="background: #0d1117; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px; overflow-x: auto; font-size: 12px; line-height: 1.5;"><code style="color: #c9d1d9;"><span style="color: #ff7b72;">class</span> <span style="color: #ffa657;">CNN</span>(nn.Module):
+    <span style="color: #ff7b72;">def</span> <span style="color: #d2a8ff;">__init__</span>(<span style="color: #79c0ff;">self</span>):
+        <span style="color: #79c0ff;">super</span>().__init__()
+        <span style="color: #79c0ff;">self</span>.conv = nn.Sequential(
+            nn.Conv2d(<span style="color: #a5d6ff;">1</span>, <span style="color: #a5d6ff;">32</span>, <span style="color: #a5d6ff;">3</span>, padding=<span style="color: #a5d6ff;">1</span>),  <span style="color: #8b949e;"># [B,1,28,28] → [B,32,28,28]</span>
+            nn.ReLU(),
+            nn.MaxPool2d(<span style="color: #a5d6ff;">2</span>),                  <span style="color: #8b949e;"># → [B,32,14,14]</span>
+            nn.Conv2d(<span style="color: #a5d6ff;">32</span>, <span style="color: #a5d6ff;">64</span>, <span style="color: #a5d6ff;">3</span>, padding=<span style="color: #a5d6ff;">1</span>),
+            nn.ReLU(),
+            nn.MaxPool2d(<span style="color: #a5d6ff;">2</span>),                  <span style="color: #8b949e;"># → [B,64,7,7]</span>
+        )
+        <span style="color: #79c0ff;">self</span>.fc = nn.Sequential(
+            nn.Flatten(),                     <span style="color: #8b949e;"># → [B,3136]</span>
+            nn.Linear(<span style="color: #a5d6ff;">64</span>*<span style="color: #a5d6ff;">7</span>*<span style="color: #a5d6ff;">7</span>, <span style="color: #a5d6ff;">128</span>),
+            nn.ReLU(),
+            nn.Linear(<span style="color: #a5d6ff;">128</span>, <span style="color: #a5d6ff;">10</span>)               <span style="color: #8b949e;"># 10 digit classes</span>
+        )</code></pre>
+                    </div>
+
+                    <!-- Transformer -->
+                    <div class="tutorial-section">
+                        <h3 style="color: var(--warning); font-size: 15px; margin-bottom: 12px;">Transformer (Attention)</h3>
+                        <pre style="background: #0d1117; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px; overflow-x: auto; font-size: 12px; line-height: 1.5;"><code style="color: #c9d1d9;"><span style="color: #ff7b72;">class</span> <span style="color: #ffa657;">Attention</span>(nn.Module):
+    <span style="color: #ff7b72;">def</span> <span style="color: #d2a8ff;">forward</span>(<span style="color: #79c0ff;">self</span>, x):
+        B, T, C = x.shape
+        q = <span style="color: #79c0ff;">self</span>.query(x)  <span style="color: #8b949e;"># [B,T,head_dim]</span>
+        k = <span style="color: #79c0ff;">self</span>.key(x)
+        v = <span style="color: #79c0ff;">self</span>.value(x)
+
+        <span style="color: #8b949e;"># Attention scores: Q @ K^T / sqrt(d)</span>
+        att = (q @ k.transpose(-<span style="color: #a5d6ff;">2</span>,-<span style="color: #a5d6ff;">1</span>)) * C**-<span style="color: #a5d6ff;">0.5</span>
+        att = F.softmax(att, dim=-<span style="color: #a5d6ff;">1</span>)
+
+        <span style="color: #ff7b72;">return</span> att @ v  <span style="color: #8b949e;"># Weighted sum of values</span></code></pre>
+                    </div>
+
+                    <!-- GNN -->
+                    <div class="tutorial-section">
+                        <h3 style="color: #a855f7; font-size: 15px; margin-bottom: 12px;">GNN (Message Passing)</h3>
+                        <pre style="background: #0d1117; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px; overflow-x: auto; font-size: 12px; line-height: 1.5;"><code style="color: #c9d1d9;"><span style="color: #ff7b72;">class</span> <span style="color: #ffa657;">GCNLayer</span>(nn.Module):
+    <span style="color: #ff7b72;">def</span> <span style="color: #d2a8ff;">forward</span>(<span style="color: #79c0ff;">self</span>, x, adj):
+        <span style="color: #8b949e;"># x: node features [N, F]</span>
+        <span style="color: #8b949e;"># adj: adjacency matrix [N, N]</span>
+
+        <span style="color: #8b949e;"># 1. Aggregate neighbor features</span>
+        agg = adj @ x  <span style="color: #8b949e;"># message passing</span>
+
+        <span style="color: #8b949e;"># 2. Transform</span>
+        out = <span style="color: #79c0ff;">self</span>.linear(agg)
+
+        <span style="color: #ff7b72;">return</span> F.relu(out)</code></pre>
+                    </div>
+
+                    <!-- Diffusion -->
+                    <div class="tutorial-section">
+                        <h3 style="color: #06b6d4; font-size: 15px; margin-bottom: 12px;">Diffusion (Denoising)</h3>
+                        <pre style="background: #0d1117; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px; overflow-x: auto; font-size: 12px; line-height: 1.5;"><code style="color: #c9d1d9;"><span style="color: #8b949e;"># Forward: add noise</span>
+<span style="color: #ff7b72;">def</span> <span style="color: #d2a8ff;">q_sample</span>(x0, t, noise):
+    <span style="color: #ff7b72;">return</span> sqrt(alpha[t]) * x0 + sqrt(<span style="color: #a5d6ff;">1</span>-alpha[t]) * noise
+
+<span style="color: #8b949e;"># Reverse: predict & remove noise</span>
+<span style="color: #ff7b72;">def</span> <span style="color: #d2a8ff;">p_sample</span>(model, xt, t):
+    pred_noise = model(xt, t)  <span style="color: #8b949e;"># UNet predicts noise</span>
+    x_prev = (xt - beta[t]*pred_noise) / sqrt(alpha[t])
+    <span style="color: #ff7b72;">return</span> x_prev + sigma[t] * torch.randn_like(xt)</code></pre>
+                    </div>
+
+                    <!-- Training Loop -->
+                    <div class="tutorial-section">
+                        <h3 style="color: #64748b; font-size: 15px; margin-bottom: 12px;">Training Loop</h3>
+                        <pre style="background: #0d1117; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px; overflow-x: auto; font-size: 12px; line-height: 1.5;"><code style="color: #c9d1d9;">optimizer = torch.optim.Adam(model.parameters(), lr=<span style="color: #a5d6ff;">0.001</span>)
+loss_fn = nn.CrossEntropyLoss()
+
+<span style="color: #ff7b72;">for</span> epoch <span style="color: #ff7b72;">in</span> <span style="color: #79c0ff;">range</span>(epochs):
+    <span style="color: #ff7b72;">for</span> x, y <span style="color: #ff7b72;">in</span> dataloader:
+        pred = model(x)
+        loss = loss_fn(pred, y)
+
+        optimizer.zero_grad()
+        loss.backward()      <span style="color: #8b949e;"># compute gradients</span>
+        optimizer.step()     <span style="color: #8b949e;"># update weights</span></code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Examples Modal -->
+    <div class="explainer-modal" id="examples-modal">
+        <div class="explainer-modal__content glass-panel" style="max-width: 750px;">
+            <div class="explainer-modal__header">
+                <h2 class="explainer-modal__title">Example Configurations</h2>
+                <p class="explainer-modal__subtitle">Quick-start presets for different learning scenarios</p>
+                <button class="explainer-modal__close" id="examples-close-btn">&times;</button>
+            </div>
+            <div style="padding: 24px; overflow-y: auto; max-height: calc(90vh - 100px);">
+                <div style="display: grid; gap: 16px;">
+                    <div class="example-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 16px; cursor: pointer; transition: all 0.2s;" onclick="window.loadExample && window.loadExample('xor')">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <h3 style="color: var(--text-primary); font-size: 15px; font-weight: 600;">XOR Problem</h3>
+                            <span style="background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 11px;">Neural Net</span>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 12px; line-height: 1.5; margin-bottom: 12px;">
+                            Classic non-linearly separable problem. Shows why hidden layers are needed - a single layer cannot solve XOR, but adding one hidden layer with a few neurons solves it easily.
+                        </p>
+                        <div style="color: var(--text-tertiary); font-size: 11px;">2 inputs → 4 neurons → 1 output | Activation: tanh</div>
+                    </div>
+                    <div class="example-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 16px; cursor: pointer; transition: all 0.2s;" onclick="window.loadExample && window.loadExample('spiral')">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <h3 style="color: var(--text-primary); font-size: 15px; font-weight: 600;">Spiral Classification</h3>
+                            <span style="background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 11px;">Neural Net</span>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 12px; line-height: 1.5; margin-bottom: 12px;">
+                            A challenging dataset with two interleaved spirals. Requires deeper networks and more neurons. Try adding additional input features like x&#178; or sin(x) to help!
+                        </p>
+                        <div style="color: var(--text-tertiary); font-size: 11px;">2+ inputs → 8→8 neurons → 1 output | Use feature engineering</div>
+                    </div>
+                    <div class="example-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 16px; cursor: pointer; transition: all 0.2s;" onclick="window.loadExample && window.loadExample('mnist')">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <h3 style="color: var(--text-primary); font-size: 15px; font-weight: 600;">MNIST Digit Recognition</h3>
+                            <span style="background: rgba(34, 197, 94, 0.15); color: var(--success); padding: 2px 8px; border-radius: 4px; font-size: 11px;">CNN</span>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 12px; line-height: 1.5; margin-bottom: 12px;">
+                            Train a CNN to recognize handwritten digits (0-9). The default architecture achieves ~98% accuracy. Use the Explain button after training to visualize what the network learned.
+                        </p>
+                        <div style="color: var(--text-tertiary); font-size: 11px;">28x28 input → Conv→Pool→Conv→Pool→Dense → 10 classes</div>
+                    </div>
+                    <div class="example-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 16px; cursor: pointer; transition: all 0.2s;" onclick="window.loadExample && window.loadExample('transformer')">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <h3 style="color: var(--text-primary); font-size: 15px; font-weight: 600;">Text Generation</h3>
+                            <span style="background: rgba(245, 158, 11, 0.15); color: var(--warning); padding: 2px 8px; border-radius: 4px; font-size: 11px;">Transformer</span>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 12px; line-height: 1.5; margin-bottom: 12px;">
+                            Generate text with PicoGPT, a tiny transformer trained on Shakespeare. Watch the attention patterns as each new token is predicted based on context.
+                        </p>
+                        <div style="color: var(--text-tertiary); font-size: 11px;">Vocab: 65 chars | 2 layers | 4 attention heads | 64 dimensions</div>
+                    </div>
+                    <div class="example-card" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 16px; cursor: pointer; transition: all 0.2s;" onclick="window.loadExample && window.loadExample('diffusion')">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <h3 style="color: var(--text-primary); font-size: 15px; font-weight: 600;">Image Generation</h3>
+                            <span style="background: rgba(6, 182, 212, 0.15); color: #06b6d4; padding: 2px 8px; border-radius: 4px; font-size: 11px;">Diffusion</span>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 12px; line-height: 1.5; margin-bottom: 12px;">
+                            Watch a diffusion model progressively denoise random noise into a coherent image. Select different patterns and observe the step-by-step denoising process.
+                        </p>
+                        <div style="color: var(--text-tertiary); font-size: 11px;">8x8 grid | 20 denoising steps | UNet-style architecture</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- TensorFlow.js for CNN -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
 

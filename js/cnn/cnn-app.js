@@ -357,28 +357,41 @@ export class CNNApp {
      * @param {string} type - Layer type
      */
     addLayer(type) {
-        // Insert before the last dense layer (output) if it exists
         const layers = this.modelBuilder.layers;
         let insertIndex = layers.length;
 
-        // Find the output layer (last dense with softmax)
-        for (let i = layers.length - 1; i >= 0; i--) {
-            if (layers[i].type === 'dense' && layers[i].config.activation === 'softmax') {
-                insertIndex = i;
-                break;
-            }
-        }
+        // Spatial layers (require 4D input) must go before Flatten
+        const isSpatialLayer = ['conv2d', 'maxPooling2d', 'avgPooling2d', 'batchNormalization'].includes(type);
 
-        // Add flatten before dense layers if needed
-        if ((type === 'dense' || type === 'dropout') && insertIndex > 0) {
-            const prevLayer = layers[insertIndex - 1];
-            if (prevLayer && !['flatten', 'dense', 'dropout'].includes(prevLayer.type)) {
-                this.modelBuilder.layers.splice(insertIndex, 0, {
-                    id: Date.now() + Math.random(),
-                    type: 'flatten',
-                    config: {}
-                });
-                insertIndex++;
+        if (isSpatialLayer) {
+            // Find the Flatten layer and insert before it
+            for (let i = 0; i < layers.length; i++) {
+                if (layers[i].type === 'flatten') {
+                    insertIndex = i;
+                    break;
+                }
+            }
+        } else {
+            // Dense/Dropout layers go after Flatten but before output layer
+            // Find the output layer (last dense with softmax)
+            for (let i = layers.length - 1; i >= 0; i--) {
+                if (layers[i].type === 'dense' && layers[i].config.activation === 'softmax') {
+                    insertIndex = i;
+                    break;
+                }
+            }
+
+            // Add flatten before dense layers if needed
+            if ((type === 'dense' || type === 'dropout') && insertIndex > 0) {
+                const prevLayer = layers[insertIndex - 1];
+                if (prevLayer && !['flatten', 'dense', 'dropout'].includes(prevLayer.type)) {
+                    this.modelBuilder.layers.splice(insertIndex, 0, {
+                        id: Date.now() + Math.random(),
+                        type: 'flatten',
+                        config: {}
+                    });
+                    insertIndex++;
+                }
             }
         }
 
