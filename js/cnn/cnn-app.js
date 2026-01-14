@@ -827,10 +827,21 @@ export class CNNApp {
             const probs = await pred.data();
             pred.dispose();
 
+            // Show warning if model is untrained
+            if (!this.modelBuilder.isTrained()) {
+                ctx.fillStyle = '#f59e0b';
+                ctx.font = 'bold 10px system-ui, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText('⚠ Untrained', 100, 10);
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '9px system-ui, sans-serif';
+                ctx.fillText('Train model for real predictions', 100, 22);
+            }
+
             // Render prediction bars
             this.visualizer?.renderPredictionBars(
                 ctx, probs, config.classNames,
-                100, 10, 150, 80
+                100, this.modelBuilder.isTrained() ? 10 : 35, 150, this.modelBuilder.isTrained() ? 80 : 55
             );
         }
     }
@@ -877,11 +888,15 @@ export class CNNApp {
      */
     openExplainer() {
         if (!this.modelBuilder.model) {
-            alert('Please build and train a model first!');
+            alert('Please build a model first!');
             return;
         }
         if (!this.datasetLoader.isLoaded) {
             alert('Please wait for dataset to load first!');
+            return;
+        }
+        if (!this.modelBuilder.isTrained()) {
+            alert('Please train the model first! Click "Train" and wait for at least one epoch to complete.');
             return;
         }
         this.explainer?.open();

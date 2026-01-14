@@ -54,6 +54,14 @@ export class CNNModelBuilder {
         this.optimizer = 'adam';
         this.learningRate = 0.001;
         this.intermediateModels = [];  // For getting activations at each layer
+        this.trainedBatches = 0;  // Track if model has been trained
+    }
+
+    /**
+     * Check if model has been trained
+     */
+    isTrained() {
+        return this.trainedBatches > 0;
     }
 
     /**
@@ -164,6 +172,9 @@ export class CNNModelBuilder {
      * Build the TensorFlow.js model from layer config
      */
     build() {
+        // Reset training state
+        this.trainedBatches = 0;
+
         // Dispose old intermediate models first (they reference the main model's layers)
         this.intermediateModels.forEach(m => {
             if (m) {
@@ -328,6 +339,8 @@ export class CNNModelBuilder {
             batchSize: batch.xs.shape[0],
             verbose: 0
         });
+
+        this.trainedBatches++;  // Track training progress
 
         return {
             loss: history.history.loss[0],
