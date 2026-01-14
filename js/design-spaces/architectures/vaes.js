@@ -1,0 +1,39 @@
+/**
+ * Variational Autoencoders Architecture Configuration
+ * Probabilistic latent variable models
+ */
+
+export const vaes = {
+    id: 'vaes',
+    name: 'Variational Autoencoders',
+    icon: '🔄',
+    color: '#22c55e',
+    description: 'Probabilistic latent variable models',
+    fullDescription: 'VAEs learn compressed latent representations by encoding inputs to distributions and decoding samples. The KL divergence regularizes the latent space, enabling interpolation and generation.',
+    whenToUse: 'Representation learning, generation, anomaly detection',
+    innovation: 'Learns compressed latent space with regularization',
+    typicalSize: '100K - 10M parameters',
+    yearIntroduced: 2013,
+    keyPapers: [
+        { title: 'Auto-Encoding Variational Bayes', authors: 'Kingma & Welling', year: 2013, arxiv: '1312.6114' },
+        { title: 'beta-VAE: Learning Basic Visual Concepts', authors: 'Higgins et al.', year: 2017, link: 'ICLR 2017' },
+        { title: 'NVAE: A Deep Hierarchical VAE', authors: 'Vahdat & Kautz', year: 2020, arxiv: '2007.03898' }
+    ],
+    scalingGuidelines: {
+        small: { params: '<1M', note: 'Simple datasets, quick experiments' },
+        medium: { params: '1-10M', note: 'Image generation, representation learning' },
+        large: { params: '>10M', note: 'NVAE-style hierarchical for high quality' }
+    },
+    parameters: [
+        { name: 'Latent Dim', key: 'latent_dim', category: 'architecture', type: 'slider', min: 2, max: 512, default: 128, step: 8, description: 'Dimension of the latent space. Higher = more capacity but harder to regularize. Sweet spot depends on data complexity.', tip: 'Higher = more capacity; balance with KL weight', compute: 'low', impact: 'high', tradeoffs: { increase: ['More capacity', 'Harder to regularize', 'Risk of posterior collapse'], decrease: ['Stronger compression', 'Better generalization', 'May lose detail'] }, research: 'MNIST works with 2-20 dims. Complex images need 128-512.', recommendations: { simple: '8-32', images: '64-128', complex: '256-512' } },
+        { name: 'Encoder Layers', key: 'encoder_layers', category: 'architecture', type: 'slider', min: 2, max: 6, default: 4, step: 1, description: 'Depth of the encoder network. Usually symmetric with decoder.', tip: 'Symmetric with decoder is standard', compute: 'medium', impact: 'medium', tradeoffs: { increase: ['Better encoding', 'More capacity'], decrease: ['Faster', 'Simpler'] }, research: 'Standard VAEs use 3-5 layers. NVAE uses many more with hierarchy.', recommendations: { default: '4', deep: '5-6' } },
+        { name: 'Decoder Layers', key: 'decoder_layers', category: 'architecture', type: 'slider', min: 2, max: 6, default: 4, step: 1, description: 'Depth of the decoder network. Often mirrors encoder architecture.', tip: 'Mirror encoder architecture', compute: 'medium', impact: 'medium', tradeoffs: { increase: ['Better reconstruction'], decrease: ['Faster generation'] }, research: 'Typically matches encoder depth.', recommendations: { default: '4' } },
+        { name: 'Hidden Dim', key: 'hidden_dim', category: 'architecture', type: 'slider', min: 64, max: 1024, default: 256, step: 64, description: 'Hidden layer dimension in encoder/decoder. Often decreases toward bottleneck in encoder.', tip: 'Gradually decrease toward bottleneck', compute: 'medium', impact: 'medium', tradeoffs: { increase: ['More capacity'], decrease: ['Faster', 'Simpler'] }, research: 'Typical pyramid: 256→128→64→latent for encoder.', recommendations: { default: '256', small: '128', large: '512' } },
+        { name: 'KL Weight (β)', key: 'kl_weight', category: 'training', type: 'slider', min: 0.001, max: 10, default: 1.0, step: 0.1, description: 'Weight on KL divergence term. β<1 prioritizes reconstruction (better quality). β>1 prioritizes disentanglement (beta-VAE).', tip: 'β<1 for quality; β>1 for disentanglement', compute: 'none', impact: 'high', tradeoffs: { increase: ['More disentangled', 'Worse reconstruction', 'beta-VAE regime'], decrease: ['Better reconstruction', 'Less regularized', 'May overfit'] }, research: 'Higgins et al. showed β>1 encourages disentanglement. β=1 is standard ELBO.', recommendations: { reconstruction: '0.1-0.5', balanced: '1.0', disentanglement: '4-10' } },
+        { name: 'Annealing', key: 'annealing', category: 'training', type: 'toggle', default: true, description: 'Gradually increase KL weight during training. Prevents posterior collapse by letting reconstruction dominate initially.', tip: 'Gradually increase β to prevent collapse', compute: 'none', impact: 'medium', tradeoffs: { enabled: ['Prevents collapse', 'Better latent use', 'Curriculum approach'], disabled: ['Simpler', 'May cause collapse'] }, research: 'Bowman et al. (2016) showed KL annealing prevents posterior collapse.', recommendations: { default: 'Enable', stable_training: 'Optional' } },
+        { name: 'Prior', key: 'prior', category: 'architecture', type: 'dropdown', options: ['Standard Normal', 'Learned', 'VampPrior', 'Flow'], default: 'Standard Normal', description: 'Prior distribution on latent space. Standard normal is simple. Learned priors can be more expressive.', tip: 'VampPrior for complex data; Normal is simple baseline', compute: 'varies', impact: 'medium', tradeoffs: { 'Standard Normal': ['Simple', 'Easy sampling', 'May not match data'], Learned: ['More flexible', 'Harder to sample'], VampPrior: ['Data-dependent', 'Expressive', 'More memory'], Flow: ['Most flexible', 'Normalizing flow prior', 'Complex'] }, research: 'Tomczak & Welling (2018) introduced VampPrior using pseudo-inputs.', recommendations: { default: 'Standard Normal', complex_data: 'VampPrior', maximum_flexibility: 'Flow' } },
+        { name: 'Decoder Output', key: 'decoder_output', category: 'architecture', type: 'dropdown', options: ['Gaussian', 'Bernoulli', 'Categorical'], default: 'Gaussian', description: 'Output distribution type. Gaussian for continuous (images with MSE). Bernoulli for binary. Categorical for discrete.', tip: 'Gaussian for images; Bernoulli for binary data', compute: 'none', impact: 'medium', tradeoffs: { Gaussian: ['Continuous output', 'MSE loss', 'Standard for images'], Bernoulli: ['Binary output', 'BCE loss', 'MNIST-style'], Categorical: ['Discrete output', 'Cross-entropy'] }, research: 'Standard practice: Gaussian for normalized images, Bernoulli for binarized.', recommendations: { continuous: 'Gaussian', binary: 'Bernoulli', discrete: 'Categorical' } },
+        { name: 'Free Bits', key: 'free_bits', category: 'training', type: 'slider', min: 0, max: 2, default: 0, step: 0.1, description: 'Minimum KL per dimension before it contributes to loss. Prevents posterior collapse by ensuring latent dimensions are used.', tip: 'Prevents collapse; 0.1-0.5 typical', compute: 'none', impact: 'medium', tradeoffs: { increase: ['Forces latent use', 'Prevents collapse', 'May hurt optimization'], decrease: ['Standard ELBO', 'May collapse'] }, research: 'Kingma et al. (2016) introduced free bits for sequence VAEs.', recommendations: { default: '0', anti_collapse: '0.1-0.5' } },
+        { name: 'Architecture', key: 'architecture', category: 'architecture', type: 'dropdown', options: ['MLP', 'CNN', 'ResNet', 'Hierarchical'], default: 'CNN', description: 'Encoder/decoder architecture type. CNN for images. MLP for tabular. Hierarchical (NVAE) for high-quality generation.', tip: 'CNN for images; MLP for tabular; Hierarchical for quality', compute: 'varies', impact: 'high', tradeoffs: { MLP: ['Simple', 'Tabular data', 'Fast'], CNN: ['Spatial structure', 'Images', 'Standard'], ResNet: ['Deep', 'Skip connections', 'Better gradients'], Hierarchical: ['NVAE-style', 'Best quality', 'Complex'] }, research: 'NVAE showed hierarchical VAEs with residual cells achieve image quality.', recommendations: { tabular: 'MLP', images: 'CNN or ResNet', high_quality: 'Hierarchical' } }
+    ]
+};
