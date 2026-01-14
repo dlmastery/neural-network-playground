@@ -36,7 +36,7 @@ Neural Network Playground is an educational tool that makes deep learning concep
 
 ## Features
 
-### 🧠 Four Interactive Tabs
+### 🧠 Six Interactive Tabs
 
 | Tab | Description | Key Concepts |
 |-----|-------------|--------------|
@@ -44,6 +44,8 @@ Neural Network Playground is an educational tool that makes deep learning concep
 | **CNN** | Convolutional Neural Networks with layer-by-layer feature map visualization | Convolutions, Pooling, Feature Hierarchies |
 | **Transformer** | Attention mechanism visualization with interactive token analysis | Self-Attention, Positional Encoding, Multi-Head Attention |
 | **GNN** | Graph Neural Networks with message passing animation | Graph Convolution, Node Classification, Neighborhood Aggregation |
+| **Diffusion** | Generative diffusion models with step-by-step denoising visualization | Noise Schedules, Denoising, Classifier-Free Guidance |
+| **Design Spaces** | Architecture parameter reference with research-backed recommendations | Scaling Laws, Hyperparameters, Model Configurations |
 
 ### ✨ Visual Highlights
 
@@ -272,34 +274,46 @@ neural-network-playground/
 │   ├── main.css              # Global styles & design system
 │   ├── components.css        # UI component library
 │   ├── animations.css        # Keyframe animations
-│   ├── cnn.css              # CNN tab styles
-│   ├── transformer.css      # Transformer tab styles
-│   └── gnn.css              # GNN tab styles
+│   ├── cnn.css               # CNN tab styles
+│   ├── transformer.css       # Transformer tab styles
+│   ├── gnn.css               # GNN tab styles
+│   ├── diffusion.css         # Diffusion tab styles
+│   └── design-spaces.css     # Design Spaces tab styles
 ├── js/
-│   ├── main.js              # App orchestration & tab management
+│   ├── main.js               # App orchestration & tab management
 │   ├── core/
-│   │   ├── tensor.js        # Matrix operations (from scratch!)
-│   │   ├── layer.js         # Dense, Conv, Activation layers
-│   │   ├── network.js       # Neural network class
-│   │   ├── optimizer.js     # SGD, Adam, RMSprop
-│   │   └── loss.js          # MSE, Cross-entropy
+│   │   ├── tensor.js         # Matrix operations (from scratch!)
+│   │   ├── layer.js          # Dense, Conv, Activation layers
+│   │   ├── network.js        # Neural network class
+│   │   ├── optimizer.js      # SGD, Adam, RMSprop
+│   │   └── loss.js           # MSE, Cross-entropy
 │   ├── visualization/
-│   │   ├── canvas.js        # Canvas utilities
-│   │   ├── network-viz.js   # Network graph rendering
-│   │   └── data-viz.js      # Decision boundary heatmaps
+│   │   ├── canvas.js         # Canvas utilities
+│   │   ├── network-viz.js    # Network graph rendering
+│   │   └── data-viz.js       # Decision boundary heatmaps
 │   ├── cnn/
-│   │   ├── cnn-model.js     # Convolutional network
-│   │   ├── cnn-viz.js       # Feature map visualization
-│   │   └── cnn-app.js       # CNN tab controller
+│   │   ├── cnn-model.js      # Convolutional network + training state
+│   │   ├── cnn-viz.js        # Feature map visualization
+│   │   ├── cnn-explainer.js  # Interactive CNN explainer modal
+│   │   ├── dataset-loader.js # MNIST/Fashion/CIFAR data loading
+│   │   └── cnn-app.js        # CNN tab controller
 │   ├── transformer/
-│   │   ├── pico-transformer.js  # Mini transformer implementation
-│   │   ├── transformer-viz.js   # Attention visualization
-│   │   └── transformer-app.js   # Transformer tab controller
-│   └── gnn/
-│       ├── gnn-dataset.js   # Karate Club & graph utilities
-│       ├── gnn-model.js     # GCN & GAT implementations
-│       ├── gnn-viz.js       # Force-directed graph layout
-│       └── gnn-app.js       # GNN tab controller
+│   │   ├── transformer-model.js    # Transformer with Transformers.js
+│   │   ├── transformer-viz.js      # Attention visualization
+│   │   ├── transformer-explainer.js # Interactive explainer modal
+│   │   └── transformer-app.js      # Transformer tab controller
+│   ├── gnn/
+│   │   ├── gnn-dataset.js    # Karate Club & graph utilities
+│   │   ├── gnn-model.js      # GCN & GAT implementations
+│   │   ├── gnn-viz.js        # Force-directed graph layout
+│   │   └── gnn-app.js        # GNN tab controller
+│   ├── diffusion/
+│   │   ├── diffusion-model.js # Diffusion model implementation
+│   │   ├── diffusion-viz.js   # Denoising step visualization
+│   │   └── diffusion-app.js   # Diffusion tab controller
+│   └── design-spaces/
+│       ├── design-spaces-data.js  # Research-backed parameter data
+│       └── design-spaces-app.js   # Design Spaces tab controller
 └── README.md
 ```
 
@@ -380,6 +394,130 @@ Learn how neural networks process graph-structured data.
 - Graph convolution: `H' = σ(D⁻¹AHW)`
 - Attention-weighted aggregation (GAT)
 - Node classification task
+
+---
+
+### Diffusion Tab
+
+Understand how diffusion models generate images from noise.
+
+**Features:**
+- Generate MNIST digits from pure noise
+- Adjustable diffusion steps (1-50 steps)
+- Classifier-free guidance scale control
+- Target class selection (0-9 or random)
+- Step-by-step denoising timeline visualization
+- Interactive scrubber to replay the generation process
+- WebGPU/WebGL/CPU backend options
+- Real-time architecture mini-map
+
+**Educational Concepts:**
+- Forward diffusion: gradually adding noise
+- Reverse diffusion: learned denoising
+- Noise schedule (linear, cosine)
+- Classifier-free guidance for conditional generation
+- U-Net architecture for denoising
+- Score matching and denoising score matching
+
+---
+
+### Design Spaces Tab
+
+A comprehensive reference for architecture hyperparameters.
+
+**Features:**
+- Research-backed parameter recommendations
+- Multiple architecture presets (Transformers, CNNs, RNNs, etc.)
+- Interactive parameter sliders with live impact visualization
+- Key papers and citations for each parameter
+- Scaling guidelines (small/medium/large model configs)
+- Parameter search and filtering
+- Export configuration as JSON
+
+**Architectures Covered:**
+- Transformers (GPT, BERT-style)
+- Convolutional Neural Networks
+- Recurrent Networks (LSTM, GRU)
+- Graph Neural Networks
+- Vision Transformers (ViT)
+- Diffusion Models
+
+**Educational Concepts:**
+- Scaling laws (Chinchilla, Kaplan et al.)
+- Compute-optimal training
+- Parameter efficiency tradeoffs
+- Architectural design decisions
+
+---
+
+## Competitive Analysis
+
+How does Neural Network Playground compare to other tools?
+
+### Feature Comparison Matrix
+
+| Feature | Neural Network Playground | [TensorFlow Playground](https://playground.tensorflow.org/) | [CNN Explainer](https://poloclub.github.io/cnn-explainer/) | [GNN 101](https://gnn101.vercel.app/) |
+|---------|---------------------------|---------------------------|---------------------|--------------|
+| **MLP Visualization** | ✅ Full | ✅ Full | ❌ | ❌ |
+| **CNN Visualization** | ✅ Full + Explainer | ❌ | ✅ Full | ❌ |
+| **Transformer Visualization** | ✅ Full | ❌ | ❌ | ❌ |
+| **GNN Visualization** | ✅ Full | ❌ | ❌ | ✅ Full |
+| **Diffusion Models** | ✅ Full | ❌ | ❌ | ❌ |
+| **Design Space Reference** | ✅ Full | ❌ | ❌ | ❌ |
+| **Real Datasets** | ✅ MNIST, Fashion, CIFAR | ❌ Synthetic only | ✅ Tiny ImageNet | ✅ Karate Club |
+| **GPU Acceleration** | ✅ WebGL/WebGPU | ❌ | ❌ | ❌ |
+| **No Dependencies** | ✅ | ✅ | ❌ (Svelte, TF.js) | ❌ (React, D3) |
+| **Train Your Own Model** | ✅ All tabs | ✅ | ❌ Pre-trained only | ✅ |
+| **Interactive Explainer** | ✅ CNN, Transformer, Diffusion | ❌ | ✅ CNN only | ❌ |
+| **Draw Your Own Input** | ✅ CNN tab | ❌ | ✅ | ❌ |
+| **Unified Experience** | ✅ 6 tabs, 1 platform | ❌ Single purpose | ❌ Single purpose | ❌ Single purpose |
+
+### What Makes Us Different
+
+1. **All-in-One Platform** — Most tools focus on a single architecture. We cover MLPs, CNNs, Transformers, GNNs, and Diffusion models in one unified interface.
+
+2. **Zero Dependencies** — Built entirely from scratch in vanilla JavaScript. No React, no TensorFlow.js (except CNN tab), no D3. You can read and understand every line.
+
+3. **Real Dataset Support** — Train on actual MNIST, Fashion-MNIST, and CIFAR-10 images, not just synthetic 2D data.
+
+4. **GPU Accelerated** — WebGL and WebGPU support for real-time training visualization, even on complex models.
+
+5. **Educational First** — Every visualization is designed to teach concepts, not just look pretty. Decision boundaries, attention patterns, message passing — all animated and interactive.
+
+6. **Design Space Reference** — Unique feature: research-backed hyperparameter recommendations with citations, scaling guidelines, and tradeoff explanations.
+
+### Detailed Comparisons
+
+#### vs TensorFlow Playground
+[TensorFlow Playground](https://playground.tensorflow.org/) pioneered interactive neural network visualization. We build on that foundation while expanding far beyond:
+
+| Aspect | TensorFlow Playground | Neural Network Playground |
+|--------|----------------------|---------------------------|
+| Scope | 2D classification only | 6 architecture types |
+| Datasets | 4 synthetic datasets | Real images (MNIST, CIFAR) |
+| Model Types | MLP only | MLP, CNN, Transformer, GNN, Diffusion |
+| Max Complexity | ~6 layers, ~48 neurons | Full-scale models (CNNs with 421K params) |
+| Explainers | None | CNN, Transformer, Diffusion explainers |
+
+#### vs CNN Explainer (Georgia Tech)
+[CNN Explainer](https://poloclub.github.io/cnn-explainer/) by the PoloClub team is excellent for understanding CNNs. Our CNN tab offers similar functionality plus:
+
+- **Train your own model** — CNN Explainer uses a pre-trained, fixed model
+- **Multiple datasets** — MNIST, Fashion-MNIST, CIFAR-10 vs. Tiny ImageNet only
+- **GPU training** — WebGL acceleration for real-time training
+- **Architecture editing** — Add/remove layers, adjust filters, change activations
+- **Unified platform** — Explore CNNs alongside Transformers, GNNs, and more
+
+#### vs GNN 101
+[GNN 101](https://gnn101.vercel.app/) focuses on GNN education with mathematical formula visualization. Our GNN tab complements this with:
+
+- **Live training** — Train GNNs in real-time vs. pre-computed examples
+- **Multiple architectures** — GCN and GAT with switchable comparison
+- **Force-directed layout** — Interactive node dragging with physics simulation
+- **Embedding visualization** — 2D projection of learned node representations
+
+#### vs Standalone Tools
+Many excellent single-purpose tools exist ([BertViz](https://github.com/jessevig/bertviz), [TensorSpace](https://tensorspace.org/), [Netron](https://netron.app/)). Our advantage is **unified learning**: understand how attention in Transformers relates to convolutions in CNNs, see how GNN message passing parallels feedforward propagation, all in one cohesive interface.
 
 ## Tech Stack
 
@@ -466,10 +604,12 @@ Contributions are welcome! Here are some ideas:
 
 - [ ] RNN/LSTM tab with sequence visualization
 - [ ] GAN tab with generator/discriminator dynamics
-- [ ] Diffusion model visualization
-- [ ] More datasets (MNIST subset, custom uploads)
-- [ ] Export trained models
-- [ ] Shareable playground configurations
+- [x] ~~Diffusion model visualization~~ ✅ Implemented!
+- [x] ~~Design space reference~~ ✅ Implemented!
+- [ ] More datasets (custom uploads, ImageNet subsets)
+- [ ] Export trained models to ONNX/TensorFlow.js format
+- [ ] Shareable playground configurations via URL
+- [ ] Model comparison mode (side-by-side training)
 
 ### How to Contribute
 
