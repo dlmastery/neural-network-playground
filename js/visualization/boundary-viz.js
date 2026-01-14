@@ -14,14 +14,14 @@ export class BoundaryVisualizer {
             resolution: 50,  // Grid resolution for heatmap
             pointRadius: 2.5,
             colors: {
-                classA: '#f59e0b',     // Amber
-                classB: '#22c55e',     // Green
+                classA: '#fb7185',     // Rose-pink
+                classB: '#38bdf8',     // Sky-cyan
                 background: {
-                    classA: [245, 158, 11],   // RGB for interpolation
-                    classB: [34, 197, 94]
+                    classA: [251, 113, 133],  // RGB for interpolation (rose)
+                    classB: [56, 189, 248]    // RGB for interpolation (cyan)
                 },
-                grid: 'rgba(148, 163, 184, 0.15)',
-                axis: 'rgba(100, 116, 139, 0.3)'
+                grid: 'rgba(148, 163, 184, 0.12)',
+                axis: 'rgba(100, 116, 139, 0.25)'
             },
             range: { min: -1.2, max: 1.2 }  // Coordinate range
         };

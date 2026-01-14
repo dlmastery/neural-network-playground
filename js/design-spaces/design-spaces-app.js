@@ -1,9 +1,13 @@
 /**
  * Design Spaces App
  * Main controller for the Design Spaces tab
+ * Enhanced to display research-backed parameter information
+ *
+ * Security Note: All HTML content is generated from controlled internal data
+ * (design-spaces-data.js), not from user input, so innerHTML usage is safe here.
  */
 
-import { architectures } from './design-spaces-data.js';
+import { architectures, parameterCategories } from './design-spaces-data.js';
 
 export class DesignSpacesApp {
     constructor() {
@@ -11,6 +15,7 @@ export class DesignSpacesApp {
         this.currentArch = 'transformers';
         this.elements = {};
         this.parameterValues = {};
+        this.expandedCards = new Set();
     }
 
     /**
@@ -46,7 +51,9 @@ export class DesignSpacesApp {
             paramsGrid: document.getElementById('design-spaces-params-grid'),
             whenToUse: document.getElementById('design-spaces-when-to-use'),
             innovation: document.getElementById('design-spaces-innovation'),
-            size: document.getElementById('design-spaces-size')
+            size: document.getElementById('design-spaces-size'),
+            keyPapers: document.getElementById('design-spaces-key-papers'),
+            scalingGuide: document.getElementById('design-spaces-scaling-guide')
         };
     }
 
@@ -69,6 +76,7 @@ export class DesignSpacesApp {
 
     /**
      * Render the architecture navigation sidebar
+     * Note: Content is from controlled internal data, safe for innerHTML
      */
     renderArchitectureNav() {
         if (!this.elements.archList) return;
@@ -101,6 +109,7 @@ export class DesignSpacesApp {
      */
     selectArchitecture(archId) {
         this.currentArch = archId;
+        this.expandedCards.clear();
         const arch = architectures.find(a => a.id === archId);
         if (!arch) return;
 
@@ -118,12 +127,18 @@ export class DesignSpacesApp {
         // Update header
         if (this.elements.currentArch) this.elements.currentArch.textContent = arch.name;
         if (this.elements.archTitle) this.elements.archTitle.textContent = arch.name;
-        if (this.elements.archDesc) this.elements.archDesc.textContent = arch.description;
+        if (this.elements.archDesc) this.elements.archDesc.textContent = arch.fullDescription || arch.description;
 
         // Update quick reference
         if (this.elements.whenToUse) this.elements.whenToUse.textContent = arch.whenToUse;
         if (this.elements.innovation) this.elements.innovation.textContent = arch.innovation;
         if (this.elements.size) this.elements.size.textContent = arch.typicalSize;
+
+        // Render key papers if element exists
+        this.renderKeyPapers(arch);
+
+        // Render scaling guidelines if element exists
+        this.renderScalingGuide(arch);
 
         // Initialize parameter values
         this.parameterValues[archId] = this.parameterValues[archId] || {};
@@ -138,18 +153,89 @@ export class DesignSpacesApp {
     }
 
     /**
-     * Render parameter cards for an architecture
+     * Render key papers section
+     * Note: Content is from controlled internal data
+     */
+    renderKeyPapers(arch) {
+        if (!this.elements.keyPapers || !arch.keyPapers) return;
+
+        const html = arch.keyPapers.map(paper => `
+            <div class="key-paper">
+                <div class="key-paper__title">${paper.title}</div>
+                <div class="key-paper__meta">${paper.authors}, ${paper.year}</div>
+                ${paper.arxiv ? `<a class="key-paper__link" href="https://arxiv.org/abs/${paper.arxiv}" target="_blank" rel="noopener">arXiv:${paper.arxiv}</a>` : ''}
+            </div>
+        `).join('');
+
+        this.elements.keyPapers.innerHTML = html;
+    }
+
+    /**
+     * Render scaling guidelines section
+     * Note: Content is from controlled internal data
+     */
+    renderScalingGuide(arch) {
+        if (!this.elements.scalingGuide || !arch.scalingGuidelines) return;
+
+        const html = Object.entries(arch.scalingGuidelines).map(([size, guide]) => `
+            <div class="scaling-tier">
+                <div class="scaling-tier__label">${size.charAt(0).toUpperCase() + size.slice(1)}</div>
+                <div class="scaling-tier__details">
+                    ${guide.params ? `<span class="scaling-tier__params">${guide.params}</span>` : ''}
+                    ${guide.layers ? `<span class="scaling-tier__layers">${guide.layers} layers</span>` : ''}
+                    ${guide.tokens ? `<span class="scaling-tier__tokens">${guide.tokens} tokens</span>` : ''}
+                </div>
+                <div class="scaling-tier__note">${guide.note}</div>
+            </div>
+        `).join('');
+
+        this.elements.scalingGuide.innerHTML = html;
+    }
+
+    /**
+     * Render parameter cards grouped by category
+     * Note: Content is from controlled internal data
      */
     renderParameters(arch) {
         if (!this.elements.paramsGrid) return;
 
-        const html = arch.parameters.map(param =>
-            this.renderParameterCard(param, arch)
-        ).join('');
+        // Group parameters by category
+        const grouped = {};
+        arch.parameters.forEach(param => {
+            const cat = param.category || 'other';
+            if (!grouped[cat]) grouped[cat] = [];
+            grouped[cat].push(param);
+        });
+
+        // Render grouped parameters
+        let html = '';
+
+        // Define category order
+        const categoryOrder = ['architecture', 'attention', 'training', 'regularization', 'efficiency', 'generation', 'other'];
+
+        categoryOrder.forEach(catKey => {
+            const params = grouped[catKey];
+            if (!params || params.length === 0) return;
+
+            const category = parameterCategories[catKey] || { name: 'Other', icon: '📦' };
+
+            html += `
+                <div class="param-category">
+                    <div class="param-category__header">
+                        <span class="param-category__icon">${category.icon}</span>
+                        <span class="param-category__name">${category.name}</span>
+                        <span class="param-category__count">${params.length}</span>
+                    </div>
+                    <div class="param-category__grid">
+                        ${params.map(param => this.renderParameterCard(param, arch)).join('')}
+                    </div>
+                </div>
+            `;
+        });
 
         this.elements.paramsGrid.innerHTML = html;
 
-        // Add event listeners to controls
+        // Add event listeners to controls and expand buttons
         this.elements.paramsGrid.querySelectorAll('.param-card').forEach(card => {
             const key = card.dataset.key;
             const input = card.querySelector('input, select');
@@ -162,34 +248,140 @@ export class DesignSpacesApp {
                     this.updateParameterValue(arch.id, key, e.target.value, card);
                 });
             }
+
+            // Expand button
+            const expandBtn = card.querySelector('.param-card__expand');
+            if (expandBtn) {
+                expandBtn.addEventListener('click', () => {
+                    this.toggleCardExpanded(key, card);
+                });
+            }
         });
     }
 
     /**
-     * Render a single parameter card
+     * Toggle card expanded state
+     */
+    toggleCardExpanded(key, card) {
+        if (this.expandedCards.has(key)) {
+            this.expandedCards.delete(key);
+            card.classList.remove('param-card--expanded');
+        } else {
+            this.expandedCards.add(key);
+            card.classList.add('param-card--expanded');
+        }
+    }
+
+    /**
+     * Render a single parameter card with enhanced information
+     * Note: Content is from controlled internal data
      */
     renderParameterCard(param, arch) {
         const value = this.parameterValues[arch.id][param.key];
         const controlHtml = this.renderControl(param, value);
+        const isExpanded = this.expandedCards.has(param.key);
+
+        // Build tradeoffs HTML
+        let tradeoffsHtml = '';
+        if (param.tradeoffs) {
+            if (param.tradeoffs.increase && param.tradeoffs.decrease) {
+                tradeoffsHtml = `
+                    <div class="param-card__tradeoffs">
+                        <div class="tradeoff tradeoff--increase">
+                            <div class="tradeoff__label">↑ Increase</div>
+                            <ul class="tradeoff__list">
+                                ${param.tradeoffs.increase.map(t => `<li>${t}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div class="tradeoff tradeoff--decrease">
+                            <div class="tradeoff__label">↓ Decrease</div>
+                            <ul class="tradeoff__list">
+                                ${param.tradeoffs.decrease.map(t => `<li>${t}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // For dropdowns with option-specific tradeoffs
+                tradeoffsHtml = `
+                    <div class="param-card__options-info">
+                        ${Object.entries(param.tradeoffs).map(([opt, traits]) => `
+                            <div class="option-info ${opt === value ? 'option-info--active' : ''}">
+                                <div class="option-info__name">${opt}</div>
+                                <ul class="option-info__traits">
+                                    ${Array.isArray(traits) ? traits.map(t => `<li>${t}</li>`).join('') : ''}
+                                </ul>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        // Build recommendations HTML
+        let recommendationsHtml = '';
+        if (param.recommendations) {
+            recommendationsHtml = `
+                <div class="param-card__recommendations">
+                    <div class="recommendations__label">Recommendations</div>
+                    <div class="recommendations__grid">
+                        ${Object.entries(param.recommendations).map(([context, rec]) => `
+                            <div class="recommendation">
+                                <span class="recommendation__context">${context}:</span>
+                                <span class="recommendation__value">${rec}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
 
         return `
-            <div class="param-card" data-key="${param.key}">
+            <div class="param-card ${isExpanded ? 'param-card--expanded' : ''}" data-key="${param.key}">
                 <div class="param-card__header">
                     <span class="param-card__name">
                         ${param.name}
-                        <span class="param-card__help" title="${param.tip}">?</span>
                     </span>
+                    <button class="param-card__expand" title="Show more details">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
                 </div>
+
+                <div class="param-card__description">
+                    ${param.description || param.tip}
+                </div>
+
                 <div class="param-card__control">
                     ${controlHtml}
                 </div>
+
                 <div class="param-card__tip">
-                    <div class="param-card__tip-label">Best Practice</div>
+                    <div class="param-card__tip-icon">💡</div>
                     <div class="param-card__tip-text">${param.tip}</div>
                 </div>
+
+                <div class="param-card__expanded-content">
+                    ${tradeoffsHtml}
+
+                    ${param.research ? `
+                        <div class="param-card__research">
+                            <div class="research__label">Research Notes</div>
+                            <div class="research__text">${param.research}</div>
+                        </div>
+                    ` : ''}
+
+                    ${recommendationsHtml}
+                </div>
+
                 <div class="param-card__indicators">
-                    <span class="param-card__indicator">Compute: ${param.compute}</span>
-                    <span class="param-card__indicator">Impact: ${param.impact}</span>
+                    <span class="param-card__indicator param-card__indicator--compute" data-level="${param.compute}">
+                        Compute: ${param.compute}
+                    </span>
+                    <span class="param-card__indicator param-card__indicator--impact" data-level="${param.impact}">
+                        Impact: ${param.impact}
+                    </span>
                 </div>
             </div>
         `;
@@ -260,6 +452,13 @@ export class DesignSpacesApp {
         if (valueDisplay && input?.type === 'range') {
             valueDisplay.textContent = value;
         }
+
+        // Update active state for option-specific tradeoffs
+        const optionInfos = card.querySelectorAll('.option-info');
+        optionInfos.forEach(info => {
+            const optName = info.querySelector('.option-info__name')?.textContent;
+            info.classList.toggle('option-info--active', optName === value);
+        });
     }
 
     /**
@@ -269,9 +468,17 @@ export class DesignSpacesApp {
         const q = query.toLowerCase();
         this.elements.paramsGrid?.querySelectorAll('.param-card').forEach(card => {
             const name = card.querySelector('.param-card__name')?.textContent.toLowerCase() || '';
+            const desc = card.querySelector('.param-card__description')?.textContent.toLowerCase() || '';
             const tip = card.querySelector('.param-card__tip-text')?.textContent.toLowerCase() || '';
-            const matches = name.includes(q) || tip.includes(q);
+            const research = card.querySelector('.research__text')?.textContent.toLowerCase() || '';
+            const matches = name.includes(q) || desc.includes(q) || tip.includes(q) || research.includes(q);
             card.style.display = matches ? '' : 'none';
+        });
+
+        // Hide empty categories
+        this.elements.paramsGrid?.querySelectorAll('.param-category').forEach(cat => {
+            const visibleCards = cat.querySelectorAll('.param-card[style=""], .param-card:not([style])');
+            cat.style.display = visibleCards.length > 0 ? '' : 'none';
         });
     }
 
@@ -305,10 +512,10 @@ export class DesignSpacesApp {
         try {
             await navigator.clipboard.writeText(text);
             const btn = this.elements.copyBtn;
-            const originalHTML = btn.innerHTML;
+            const originalText = btn.textContent;
             btn.textContent = 'Copied!';
             setTimeout(() => {
-                btn.innerHTML = originalHTML;
+                btn.textContent = originalText;
             }, 2000);
         } catch (err) {
             console.error('[DesignSpaces] Failed to copy:', err);

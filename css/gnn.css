@@ -1,7 +1,14 @@
-/**
- * GNN Tab Styles
- * Styles for Graph Neural Network visualization
- */
+/* ═══════════════════════════════════════════════════════════════════════════
+   GNN TAB STYLES - DARK LUXE EDITION
+   Green accent theme (#10b981) - Graph-inspired visuals
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* GNN-specific accent color override */
+#gnn-panel {
+    --accent: var(--accent-gnn);
+    --accent-glow: var(--accent-gnn-glow);
+    --accent-soft: var(--accent-gnn-soft);
+}
 
 /* ==================== Main Layout ==================== */
 
@@ -19,8 +26,11 @@
 .gnn-controls {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     padding: 12px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
 }
 
 /* ==================== Left Sidebar - Graph Structure ==================== */
@@ -29,6 +39,9 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
 }
 
 .gnn-graph-container {
@@ -36,62 +49,79 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 8px;
+    padding: 12px;
     min-height: 260px;
+    background: var(--bg-void);
 }
 
 #gnn-graph-canvas {
-    background: var(--color-bg-tertiary);
-    border-radius: 8px;
+    background: transparent;
+    border-radius: var(--radius-md);
     cursor: default;
+    box-shadow: 0 0 40px var(--accent-glow);
 }
 
 .gnn-graph-info {
     display: flex;
     justify-content: center;
-    gap: 16px;
-    padding: 8px 12px;
+    gap: 20px;
+    padding: 12px 14px;
     font-size: 0.8rem;
-    color: var(--color-text-secondary);
-    border-top: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-surface);
 }
 
 .gnn-graph-info strong {
-    color: var(--color-text-primary);
+    color: var(--accent);
     font-weight: 600;
+    font-family: var(--font-mono);
 }
 
 /* Legend */
 .gnn-legend {
-    padding: 12px;
-    border-top: 1px solid var(--glass-border);
+    padding: 14px;
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-surface);
 }
 
 .legend-item {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     font-size: 0.75rem;
-    color: var(--color-text-secondary);
-    margin-bottom: 6px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
 }
 
 .legend-item:last-child {
     margin-bottom: 0;
 }
 
+.legend-item:hover {
+    color: var(--text-primary);
+}
+
 .legend-dot {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.legend-item:hover .legend-dot {
+    transform: scale(1.2);
 }
 
 .legend-dot--class-a {
-    background: #3b82f6;
+    background: #60a5fa;
+    box-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
 }
 
 .legend-dot--class-b {
-    background: #ef4444;
+    background: #f87171;
+    box-shadow: 0 0 10px rgba(248, 113, 113, 0.5);
 }
 
 /* ==================== Center - Visualizations ==================== */
@@ -108,6 +138,10 @@
     display: flex;
     flex-direction: column;
     min-height: 300px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
 }
 
 .gnn-embedding-panel {
@@ -115,29 +149,39 @@
     display: flex;
     flex-direction: column;
     min-height: 200px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
 }
 
 .viz-panel__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--glass-border);
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-card) 100%);
 }
 
 .viz-panel__header h3 {
-    font-size: 0.85rem;
+    font-family: var(--font-display);
+    font-size: 0.9rem;
     font-weight: 600;
-    color: var(--color-text-primary);
+    color: var(--text-primary);
     margin: 0;
+    letter-spacing: -0.02em;
 }
 
 .viz-panel__badge {
+    font-family: var(--font-mono);
     font-size: 0.75rem;
-    padding: 2px 8px;
-    background: var(--color-primary);
-    color: white;
-    border-radius: 4px;
+    padding: 4px 10px;
+    background: var(--accent);
+    color: #0a0d17;
+    border-radius: var(--radius-md);
+    box-shadow: 0 0 15px var(--accent-glow);
+    font-weight: 700;
 }
 
 .viz-panel__content {
@@ -145,68 +189,72 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 12px;
+    padding: 16px;
     min-height: 0;
+    background: var(--bg-void);
 }
 
 .viz-panel__content canvas {
     max-width: 100%;
     max-height: 100%;
-    background: var(--color-bg-tertiary);
-    border-radius: 6px;
+    border-radius: var(--radius-md);
 }
 
 .viz-panel__footer {
-    padding: 10px 14px;
-    border-top: 1px solid var(--glass-border);
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-surface);
 }
 
 /* Animation Controls */
 .gnn-animation-controls {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
 .gnn-animation-controls .btn--icon {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 0.9rem;
-    border-radius: 6px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    color: var(--color-text-primary);
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .gnn-animation-controls .btn--icon:hover {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
-    color: white;
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0a0d17;
+    box-shadow: 0 0 20px var(--accent-glow);
 }
 
 .gnn-layer-progress {
     flex: 1;
-    margin-left: 8px;
+    margin-left: 10px;
 }
 
 .progress-track {
     height: 6px;
-    background: var(--color-bg-tertiary);
+    background: var(--bg-void);
     border-radius: 3px;
     overflow: hidden;
+    border: 1px solid var(--border-subtle);
 }
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+    background: linear-gradient(90deg, var(--accent), #34d399);
     border-radius: 3px;
     transition: width 0.1s ease;
+    box-shadow: 0 0 10px var(--accent-glow);
 }
 
 /* ==================== Right Sidebar - Details ==================== */
@@ -215,18 +263,21 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
 }
 
 .gnn-node-info {
-    padding: 4px 0;
+    padding: 6px 0;
 }
 
 .gnn-node-hint {
-    color: var(--color-text-tertiary);
+    color: var(--text-tertiary);
     font-size: 0.8rem;
     font-style: italic;
     text-align: center;
-    padding: 20px 0;
+    padding: 24px 0;
     margin: 0;
 }
 
@@ -234,8 +285,15 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 6px 0;
-    border-bottom: 1px solid var(--glass-border-light);
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    transition: all 0.2s ease;
+}
+
+.node-detail-row:hover {
+    background: var(--bg-elevated);
+    margin: 0 -14px;
+    padding: 10px 14px;
 }
 
 .node-detail-row:last-child {
@@ -244,35 +302,46 @@
 
 .node-detail-row .label {
     font-size: 0.75rem;
-    color: var(--color-text-secondary);
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
 }
 
 .node-detail-row .value {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 500;
-    color: var(--color-text-primary);
+    color: var(--text-primary);
     font-family: var(--font-mono);
 }
 
 .node-detail-row .value.correct {
     color: var(--color-success);
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
 }
 
 .node-detail-row .value.incorrect {
     color: var(--color-error);
+    text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
 }
 
 /* Training Metrics */
 .gnn-metrics {
-    padding: 4px 0;
+    padding: 6px 0;
 }
 
 .metric-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--glass-border-light);
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    transition: all 0.2s ease;
+}
+
+.metric-row:hover {
+    background: var(--bg-elevated);
+    margin: 0 -14px;
+    padding: 10px 14px;
 }
 
 .metric-row:last-child {
@@ -281,13 +350,15 @@
 
 .metric-label {
     font-size: 0.75rem;
-    color: var(--color-text-secondary);
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
 }
 
 .metric-value {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 600;
-    color: var(--color-text-primary);
+    color: var(--accent);
     font-family: var(--font-mono);
 }
 
@@ -295,23 +366,243 @@
 
 .gnn-sidebar .sidebar__header,
 .gnn-details .sidebar__header {
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--glass-border);
+    padding: 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-card) 100%);
 }
 
 .gnn-sidebar .sidebar__header h3,
 .gnn-details .sidebar__header h3 {
-    font-size: 0.85rem;
+    font-family: var(--font-display);
+    font-size: 0.9rem;
     font-weight: 600;
-    color: var(--color-text-primary);
+    color: var(--text-primary);
     margin: 0;
+    letter-spacing: -0.02em;
 }
 
 .gnn-sidebar .sidebar__content,
 .gnn-details .sidebar__content {
-    padding: 12px 14px;
+    padding: 14px 16px;
     flex: 1;
     overflow-y: auto;
+}
+
+/* ==================== Canvas Styling ==================== */
+
+#gnn-message-canvas,
+#gnn-embedding-canvas {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* ==================== Animations ==================== */
+
+@keyframes gnn-pulse {
+    0%, 100% {
+        opacity: 1;
+        text-shadow: 0 0 10px var(--accent-glow);
+    }
+    50% {
+        opacity: 0.7;
+        text-shadow: 0 0 20px var(--accent-glow);
+    }
+}
+
+@keyframes gnn-message-flow {
+    0% { stroke-dashoffset: 20; }
+    100% { stroke-dashoffset: 0; }
+}
+
+@keyframes gnn-node-glow {
+    0%, 100% {
+        box-shadow: 0 0 10px var(--accent-glow);
+    }
+    50% {
+        box-shadow: 0 0 25px var(--accent-glow);
+    }
+}
+
+.gnn-training .metric-value {
+    animation: gnn-pulse 0.5s ease-in-out infinite;
+}
+
+/* ==================== Dark Theme Enhancements ==================== */
+
+.gnn-main canvas {
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Scrollbar styling */
+.gnn-details .sidebar__content::-webkit-scrollbar,
+.gnn-sidebar .sidebar__content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.gnn-details .sidebar__content::-webkit-scrollbar-track,
+.gnn-sidebar .sidebar__content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.gnn-details .sidebar__content::-webkit-scrollbar-thumb,
+.gnn-sidebar .sidebar__content::-webkit-scrollbar-thumb {
+    background: var(--border-default);
+    border-radius: 3px;
+}
+
+.gnn-details .sidebar__content::-webkit-scrollbar-thumb:hover,
+.gnn-sidebar .sidebar__content::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}
+
+/* ==================== Graph Node Styles ==================== */
+
+.gnn-node {
+    fill: var(--bg-elevated);
+    stroke: var(--accent);
+    stroke-width: 2px;
+    transition: all 0.2s ease;
+}
+
+.gnn-node:hover {
+    fill: var(--accent-soft);
+    stroke-width: 3px;
+    filter: drop-shadow(0 0 8px var(--accent-glow));
+}
+
+.gnn-node--selected {
+    fill: var(--accent);
+    stroke: white;
+    filter: drop-shadow(0 0 12px var(--accent-glow));
+}
+
+.gnn-edge {
+    stroke: var(--border-default);
+    stroke-width: 1.5px;
+    transition: all 0.2s ease;
+}
+
+.gnn-edge--active {
+    stroke: var(--accent);
+    stroke-width: 2.5px;
+    filter: drop-shadow(0 0 4px var(--accent-glow));
+}
+
+.gnn-edge--message {
+    stroke: var(--accent);
+    stroke-dasharray: 8 4;
+    animation: gnn-message-flow 0.5s linear infinite;
+}
+
+/* ==================== Message Passing Visualization ==================== */
+
+.message-aggregation {
+    padding: 14px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    margin-top: 12px;
+}
+
+.message-aggregation__title {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.message-aggregation__formula {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--accent);
+    text-align: center;
+    padding: 10px;
+    background: var(--bg-void);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--accent-soft);
+}
+
+/* ==================== Embedding Space Visualization ==================== */
+
+.embedding-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.embedding-control {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.embedding-control label {
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.embedding-control select {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    background: var(--bg-void);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.embedding-control select:hover {
+    border-color: var(--accent-soft);
+}
+
+.embedding-control select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+/* ==================== Layer Selector ==================== */
+
+.gnn-layer-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.gnn-layer-selector label {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.gnn-layer-selector select {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    font-family: var(--font-mono);
+    background: var(--bg-void);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.gnn-layer-selector select:hover {
+    border-color: var(--accent-soft);
+}
+
+.gnn-layer-selector select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-glow);
 }
 
 /* ==================== Responsive ==================== */
@@ -347,7 +638,7 @@
 @media (max-width: 768px) {
     .gnn-controls {
         flex-wrap: wrap;
-        gap: 12px;
+        gap: 10px;
     }
 
     .gnn-graph-container {
@@ -363,50 +654,21 @@
     }
 }
 
-/* ==================== Canvas Styling ==================== */
+@media (max-width: 600px) {
+    .gnn-main {
+        padding: 10px;
+        gap: 10px;
+    }
 
-#gnn-message-canvas,
-#gnn-embedding-canvas {
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-}
+    .gnn-controls {
+        padding: 10px 12px;
+    }
 
-/* ==================== Animations ==================== */
+    .viz-panel__header {
+        padding: 12px 14px;
+    }
 
-@keyframes gnn-pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
-}
-
-@keyframes gnn-message-flow {
-    0% { stroke-dashoffset: 20; }
-    100% { stroke-dashoffset: 0; }
-}
-
-.gnn-training .metric-value {
-    animation: gnn-pulse 0.5s ease-in-out infinite;
-}
-
-/* ==================== Dark Theme Adjustments ==================== */
-
-.gnn-main canvas {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Scrollbar styling for details panel */
-.gnn-details .sidebar__content::-webkit-scrollbar {
-    width: 6px;
-}
-
-.gnn-details .sidebar__content::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.gnn-details .sidebar__content::-webkit-scrollbar-thumb {
-    background: var(--glass-border);
-    border-radius: 3px;
-}
-
-.gnn-details .sidebar__content::-webkit-scrollbar-thumb:hover {
-    background: var(--color-primary-light);
+    .viz-panel__header h3 {
+        font-size: 0.85rem;
+    }
 }

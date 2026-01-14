@@ -17,17 +17,17 @@ export class NetworkVisualizer {
             maxNeuronsFullSize: 6,
             gridResolution: 12,    // Resolution of mini heatmaps
             colors: {
-                classA: [245, 158, 11],    // Amber RGB
-                classB: [34, 197, 94],     // Green RGB
+                classA: [251, 113, 133],   // Rose-pink RGB (#fb7185)
+                classB: [56, 189, 248],    // Sky-cyan RGB (#38bdf8)
                 weight: {
-                    positive: '#22c55e',
-                    negative: '#f59e0b',
-                    neutral: '#94a3b8'
+                    positive: '#60a5fa',   // Soft blue
+                    negative: '#fb7185',   // Rose-pink
+                    neutral: '#64748b'
                 },
                 border: {
-                    input: '#22c55e',
-                    hidden: '#f59e0b',
-                    output: '#64748b'
+                    input: '#38bdf8',      // Cyan
+                    hidden: '#a78bfa',     // Violet
+                    output: '#94a3b8'
                 }
             },
             animation: {
@@ -322,12 +322,12 @@ export class NetworkVisualizer {
             );
             if (neuronIndex === 0) {
                 // x1 - horizontal gradient
-                gradient.addColorStop(0, '#22c55e');
-                gradient.addColorStop(1, '#f59e0b');
+                gradient.addColorStop(0, '#38bdf8');
+                gradient.addColorStop(1, '#a78bfa');
             } else {
                 // x2 - vertical gradient
-                gradient.addColorStop(0, '#22c55e');
-                gradient.addColorStop(1, '#f59e0b');
+                gradient.addColorStop(0, '#38bdf8');
+                gradient.addColorStop(1, '#a78bfa');
             }
 
             this.ctx.fillStyle = gradient;
