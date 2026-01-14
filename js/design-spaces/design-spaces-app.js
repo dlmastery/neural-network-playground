@@ -104,6 +104,12 @@ export class DesignSpacesApp {
         const arch = architectures.find(a => a.id === archId);
         if (!arch) return;
 
+        // Update panel data attribute for CSS color theming
+        const panel = document.getElementById('design-spaces-panel');
+        if (panel) {
+            panel.setAttribute('data-arch', archId);
+        }
+
         // Update navigation
         this.elements.archList?.querySelectorAll('.design-spaces-arch-item').forEach(item => {
             item.classList.toggle('design-spaces-arch-item--active', item.dataset.arch === archId);
